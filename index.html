@@ -9,11 +9,11 @@
     :root{
       --bg:#0b0f1f;
       --card:#0f1222ee;
-      --muted:#a5b4fc; /* soft indigo */
+      --muted:#a5b4fc;
       --text:#f1f5f9;
-      --brand:#7CFF00; /* neon green */
-      --brand-600:#44d62c; /* darker neon */
-      --accent:#a21caf; /* purple accent */
+      --brand:#7CFF00;
+      --brand-600:#44d62c;
+      --accent:#a21caf;
       --ring:#93c5fd55;
     }
     *{box-sizing:border-box}
@@ -38,7 +38,7 @@
     h1{margin:8px 0 4px; font-size: clamp(28px, 3.4vw, 44px); letter-spacing:0.3px}
     p.lead{margin:0; color:var(--muted)}
 
-    /* === HERO DIPERKECIL (hanya bagian foto atas) === */
+    /* HERO: gambar ditampilkan proporsional dan tidak terlalu besar */
     .hero-media{
       position:relative; border-radius:18px; overflow:hidden; background:#0b1220;
       padding:8px; text-align:center;
@@ -46,7 +46,7 @@
     .hero-media img{
       max-width:100%;
       height:auto;
-      max-height:350px;      /* 🔥 dari 220px -> sekarang 300px */
+      max-height:350px;   /* atur tinggi gambar hero di sini */
       object-fit:contain;
       display:inline-block;
       border-radius:12px;
@@ -73,13 +73,20 @@
     .hint{color:var(--muted); font-size:13px}
     .reveal{opacity:0; transform:translateY(40px); transition:opacity .6s ease, transform .6s ease}
     .reveal.show{opacity:1; transform:none}
+
+    /* Notif kecil jika autoplay diblokir */
+    .audio-tip{
+      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+      background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px;
+      border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s;
+    }
+    .audio-tip.show{opacity:1}
   </style>
 </head>
 <body>
-  <!-- Musik auto ON & tidak bisa di-off -->
-  <audio autoplay loop>
-    <source src="assets/lagu.mp3" type="audio/mpeg">
-  </audio>
+  <!-- AUDIO: autoplay mungkin diblokir; akan diputar saat interaksi pertama -->
+  <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop></audio>
+  <div id="audioTip" class="audio-tip">tap/klik halaman untuk memutar musik…</div>
 
   <div class="container">
     <header>
@@ -103,7 +110,6 @@
       </div>
     </header>
 
-    <!-- Bagian lain tidak diubah -->
     <div class="grid" id="formSection">
       <section class="card reveal">
         <h2>Form Pre-Order</h2>
@@ -226,6 +232,29 @@
   <script>
     const $ = (s, r=document) => r.querySelector(s);
 
+    // ====== AUDIO AUTOPLAY HANDLER ======
+    const bgm = $('#bgm');
+    const tip = $('#audioTip');
+
+    // coba autoplay ketika halaman siap
+    (async () => {
+      try { await bgm.play(); }
+      catch (e) { tip.classList.add('show'); } // tampilkan tip singkat kalau diblokir
+    })();
+
+    // kalau autoplay diblokir, putar pada interaksi pertama
+    function kickstart() {
+      bgm.play().catch(()=>{}); // abaikan error setelahnya
+      tip.classList.remove('show');
+      window.removeEventListener('pointerdown', kickstart);
+      window.removeEventListener('keydown', kickstart);
+      window.removeEventListener('touchstart', kickstart);
+    }
+    window.addEventListener('pointerdown', kickstart, { once:true });
+    window.addEventListener('keydown', kickstart, { once:true });
+    window.addEventListener('touchstart', kickstart, { once:true });
+
+    // ====== UI lainnya ======
     $('#btnScroll').addEventListener('click', ()=> {
       $('#formSection').scrollIntoView({behavior:'smooth', block:'start'});
     });
@@ -250,14 +279,12 @@
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-
       if(!data.nama || !data.wa || !data.alamat || !data.ukuran || !data.jumlah){
         alert('Lengkapi semua data wajib.'); return;
       }
       if(!validPhone(data.wa)){
         alert('Format WhatsApp tidak valid. Gunakan angka saja, 9–15 digit.'); return;
       }
-
       submitBtn.disabled = true;
 
       const teks = `Halo Admin, saya ingin PO kaos GANESIPALA:\n\n`+
@@ -273,7 +300,6 @@
       const admin = '6283854352773';
       const waUrl = `https://wa.me/${admin}?text=${encodeURIComponent(teks)}`;
       window.open(waUrl, '_blank');
-
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
   </script>
