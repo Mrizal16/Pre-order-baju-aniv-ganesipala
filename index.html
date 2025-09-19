@@ -38,19 +38,14 @@
     h1{margin:8px 0 4px; font-size: clamp(28px, 3.4vw, 44px); letter-spacing:0.3px}
     p.lead{margin:0; color:var(--muted)}
 
-    /* HERO: gambar ditampilkan proporsional dan tidak terlalu besar */
+    /* HERO: gambar proporsional */
     .hero-media{
       position:relative; border-radius:18px; overflow:hidden; background:#0b1220;
       padding:8px; text-align:center;
     }
     .hero-media img{
-      max-width:100%;
-      height:auto;
-      max-height:350px;   /* atur tinggi gambar hero di sini */
-      object-fit:contain;
-      display:inline-block;
-      border-radius:12px;
-      filter:saturate(1.05);
+      max-width:100%; height:auto; max-height:350px;
+      object-fit:contain; display:inline-block; border-radius:12px; filter:saturate(1.05);
     }
 
     .price{font-weight:800; font-size:clamp(18px,2.2vw,22px); color:var(--brand)}
@@ -74,7 +69,6 @@
     .reveal{opacity:0; transform:translateY(40px); transition:opacity .6s ease, transform .6s ease}
     .reveal.show{opacity:1; transform:none}
 
-    /* Notif kecil jika autoplay diblokir */
     .audio-tip{
       position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
       background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px;
@@ -84,8 +78,8 @@
   </style>
 </head>
 <body>
-  <!-- AUDIO: autoplay mungkin diblokir; akan diputar saat interaksi pertama -->
-  <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop></audio>
+  <!-- AUDIO: autoplay muted (diizinkan browser), lalu unmute saat user tap -->
+  <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop playsinline muted></audio>
   <div id="audioTip" class="audio-tip">tap/klik halaman untuk memutar musik…</div>
 
   <div class="container">
@@ -105,7 +99,6 @@
         <p class="hint">Stok dibuat sesuai jumlah PO. Pastikan data & ukuran sudah benar ya ✨</p>
       </div>
       <div class="hero-media" aria-label="foto produk">
-        <!-- GANTI: gunakan gambar eniv.jpg -->
         <img src="assets/eniv.jpg" alt="Kaos GANESIPALA - desain Anniversary"/>
       </div>
     </header>
@@ -232,29 +225,45 @@
   <script>
     const $ = (s, r=document) => r.querySelector(s);
 
-    // ====== AUDIO AUTOPLAY HANDLER ======
+    /* ====== AUDIO AUTOPLAY (mobile friendly) ====== */
     const bgm = $('#bgm');
     const tip = $('#audioTip');
+    bgm.volume = 1.0;
 
-    // coba autoplay ketika halaman siap
+    // 1) Putar dalam keadaan muted (autoplay diizinkan)
     (async () => {
-      try { await bgm.play(); }
-      catch (e) { tip.classList.add('show'); } // tampilkan tip singkat kalau diblokir
+      try { await bgm.play(); } catch(e) { /* abaikan */ }
+      // jika masih diam (karena muted), tampilkan tip
+      if (bgm.muted || bgm.paused) tip.classList.add('show');
     })();
 
-    // kalau autoplay diblokir, putar pada interaksi pertama
-    function kickstart() {
-      bgm.play().catch(()=>{}); // abaikan error setelahnya
+    // 2) Saat interaksi pertama: unmute + pastikan play
+    async function kickstart(){
+      try {
+        bgm.muted = false;
+        await bgm.play();
+        // WebAudio fallback untuk iOS
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) {
+          const ctx = new AC();
+          if (ctx.state === 'suspended') await ctx.resume();
+        }
+      } catch(e){ /* abaikan */ }
       tip.classList.remove('show');
       window.removeEventListener('pointerdown', kickstart);
-      window.removeEventListener('keydown', kickstart);
       window.removeEventListener('touchstart', kickstart);
+      window.removeEventListener('keydown', kickstart);
     }
-    window.addEventListener('pointerdown', kickstart, { once:true });
-    window.addEventListener('keydown', kickstart, { once:true });
-    window.addEventListener('touchstart', kickstart, { once:true });
+    window.addEventListener('pointerdown', kickstart, {once:true});
+    window.addEventListener('touchstart', kickstart, {once:true});
+    window.addEventListener('keydown', kickstart, {once:true});
 
-    // ====== UI lainnya ======
+    // Jika balik dari tab lain, coba play lagi
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) bgm.play().catch(()=>{});
+    });
+
+    /* ====== UI lainnya ====== */
     $('#btnScroll').addEventListener('click', ()=> {
       $('#formSection').scrollIntoView({behavior:'smooth', block:'start'});
     });
