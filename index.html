@@ -7,14 +7,8 @@
   <meta name="description" content="Pre-order kaos Anniversary GANESIPALA (Glow in the Dark). Isi data, pilih ukuran & jumlah, lalu konfirmasi via WhatsApp." />
   <style>
     :root{
-      --bg:#0b0f1f;
-      --card:#0f1222ee;
-      --muted:#a5b4fc;
-      --text:#f1f5f9;
-      --brand:#7CFF00;
-      --brand-600:#44d62c;
-      --accent:#a21caf;
-      --ring:#93c5fd55;
+      --bg:#0b0f1f; --card:#0f1222ee; --muted:#a5b4fc; --text:#f1f5f9;
+      --brand:#7CFF00; --brand-600:#44d62c; --accent:#a21caf; --ring:#93c5fd55;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -37,17 +31,8 @@
     .badge{display:inline-flex; gap:6px; align-items:center; font-size:12px; color:#04110a; background:linear-gradient(180deg, var(--brand), var(--brand-600)); padding:6px 10px; border-radius:999px; font-weight:700}
     h1{margin:8px 0 4px; font-size: clamp(28px, 3.4vw, 44px); letter-spacing:0.3px}
     p.lead{margin:0; color:var(--muted)}
-
-    /* HERO: gambar proporsional */
-    .hero-media{
-      position:relative; border-radius:18px; overflow:hidden; background:#0b1220;
-      padding:8px; text-align:center;
-    }
-    .hero-media img{
-      max-width:100%; height:auto; max-height:350px;
-      object-fit:contain; display:inline-block; border-radius:12px; filter:saturate(1.05);
-    }
-
+    .hero-media{position:relative; border-radius:18px; overflow:hidden; background:#0b1220; padding:8px; text-align:center;}
+    .hero-media img{max-width:100%; height:auto; max-height:350px; object-fit:contain; display:inline-block; border-radius:12px; filter:saturate(1.05)}
     .price{font-weight:800; font-size:clamp(18px,2.2vw,22px); color:var(--brand)}
     .grid{display:grid; gap:20px; grid-template-columns: 1fr 1fr; margin-top:22px}
     @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
@@ -62,25 +47,19 @@
     }
     input:focus, select:focus, textarea:focus{ border-color: var(--accent); box-shadow: 0 0 0 6px var(--ring); }
     textarea{min-height:88px; resize:vertical}
-    .btn{appearance:none; border:none; padding:14px 18px; border-radius:14px; font-weight:800; cursor:pointer; color:#04110a; background:linear-gradient(180deg, var(--brand), var(--brand-600));
-      box-shadow: 0 10px 30px #16a34a55, inset 0 1px 0 #ffffff55; }
+    .btn{appearance:none; border:none; padding:14px 18px; border-radius:14px; font-weight:800; cursor:pointer; color:#04110a; background:linear-gradient(180deg, var(--brand), var(--brand-600)); box-shadow: 0 10px 30px #16a34a55, inset 0 1px 0 #ffffff55}
     .btn:disabled{opacity:.6; cursor:not-allowed}
     .hint{color:var(--muted); font-size:13px}
     .reveal{opacity:0; transform:translateY(40px); transition:opacity .6s ease, transform .6s ease}
     .reveal.show{opacity:1; transform:none}
-
-    .audio-tip{
-      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
-      background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px;
-      border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s;
-    }
+    .audio-tip{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s}
     .audio-tip.show{opacity:1}
   </style>
 </head>
 <body>
-  <!-- AUDIO: autoplay muted (diizinkan browser), lalu unmute saat user tap -->
-  <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop playsinline muted></audio>
-  <div id="audioTip" class="audio-tip">tap/klik halaman untuk memutar musik…</div>
+  <!-- Mode paksa autoplay: langsung nyala (unmuted). Browser yang blokir akan kita retry. -->
+  <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop playsinline autoplay></audio>
+  <div id="audioTip" class="audio-tip">tap sekali untuk menyalakan musik…</div>
 
   <div class="container">
     <header>
@@ -225,49 +204,40 @@
   <script>
     const $ = (s, r=document) => r.querySelector(s);
 
-    /* ====== AUDIO AUTOPLAY (mobile friendly) ====== */
-    const bgm = $('#bgm');
-    const tip = $('#audioTip');
+    /* ====== AUTOPLAY “MAKSIMAL” ====== */
+    const bgm = document.getElementById('bgm');
+    const tip = document.getElementById('audioTip');
     bgm.volume = 1.0;
 
-    // 1) Putar dalam keadaan muted (autoplay diizinkan)
-    (async () => {
-      try { await bgm.play(); } catch(e) { /* abaikan */ }
-      // jika masih diam (karena muted), tampilkan tip
-      if (bgm.muted || bgm.paused) tip.classList.add('show');
-    })();
-
-    // 2) Saat interaksi pertama: unmute + pastikan play
-    async function kickstart(){
+    // Coba play segera beberapa kali (untuk Android/Chrome biasanya jalan)
+    let tries = 0, maxTries = 12; // coba ±6 detik (12 x 500ms)
+    const tryPlay = async () => {
       try {
-        bgm.muted = false;
-        await bgm.play();
-        // WebAudio fallback untuk iOS
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) {
-          const ctx = new AC();
-          if (ctx.state === 'suspended') await ctx.resume();
-        }
-      } catch(e){ /* abaikan */ }
-      tip.classList.remove('show');
-      window.removeEventListener('pointerdown', kickstart);
-      window.removeEventListener('touchstart', kickstart);
-      window.removeEventListener('keydown', kickstart);
-    }
-    window.addEventListener('pointerdown', kickstart, {once:true});
-    window.addEventListener('touchstart', kickstart, {once:true});
-    window.addEventListener('keydown', kickstart, {once:true});
+        if (bgm.paused) await bgm.play();
+      } catch(e) {/* diblokir */ }
+      tries++;
+      if (!bgm.paused || tries >= maxTries) {
+        clearInterval(timer);
+        if (bgm.paused) tip.classList.add('show'); // minta 1 tap kalau masih blokir
+      }
+    };
+    const timer = setInterval(tryPlay, 500);
+    // juga coba saat load & pageshow (kembali dari background)
+    window.addEventListener('load', tryPlay, {once:true});
+    window.addEventListener('pageshow', tryPlay, {once:true});
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tryPlay(); });
 
-    // Jika balik dari tab lain, coba play lagi
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) bgm.play().catch(()=>{});
-    });
+    // Satu tap apa pun = paksa play
+    const kick = () => { bgm.play().catch(()=>{}); tip.classList.remove('show');
+      window.removeEventListener('pointerdown', kick); window.removeEventListener('touchstart', kick); window.removeEventListener('keydown', kick); };
+    window.addEventListener('pointerdown', kick, {once:true});
+    window.addEventListener('touchstart', kick, {once:true});
+    window.addEventListener('keydown', kick, {once:true});
 
     /* ====== UI lainnya ====== */
     $('#btnScroll').addEventListener('click', ()=> {
       $('#formSection').scrollIntoView({behavior:'smooth', block:'start'});
     });
-
     const dlg = $('#sizeModal');
     $('#btnSize').addEventListener('click', ()=> dlg.showModal());
     $('#closeSize').addEventListener('click', ()=> dlg.close());
