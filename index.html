@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pre-Order Kaos GANESIPALA</title>
+  <title>Pre-Order Kaos Anniversary GANESIPALA</title>
   <meta name="description" content="Pre-order kaos Anniversary GANESIPALA (Glow in the Dark). Isi data, pilih ukuran & jumlah, lalu konfirmasi via WhatsApp." />
   <style>
     :root{
@@ -108,6 +108,39 @@
       .size-table{display:none}
       .size-grid{display:grid}
     }
+
+    /* ===== Gallery enhancements ===== */
+    .gallery img{
+      cursor: zoom-in;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .gallery img:hover{ transform: scale(1.01); }
+    dialog#galleryModal{
+      border:none; padding:0; width:min(96vw, 1100px); background:#0b1020; color:var(--text);
+      border-radius:16px; overflow:hidden; box-shadow: 0 24px 70px #000b, inset 0 0 0 1px #ffffff1a;
+    }
+    dialog#galleryModal::backdrop{ background:#0009; backdrop-filter: blur(4px); }
+    .viewer{
+      position:relative; display:grid; grid-template-rows:auto auto; gap:10px; padding:12px;
+    }
+    .viewer-img{
+      width:100%; height:auto; max-height:78vh; object-fit:contain; border-radius:12px; background:#0a0f1a;
+      box-shadow: inset 0 0 0 1px #ffffff12;
+    }
+    .viewer-caption{ color:#a5b4fc; font-size:14px; padding:0 4px 8px 4px; }
+    .viewer-actions{
+      position:absolute; inset:auto 0 0 0; display:flex; justify-content:space-between; padding:12px; pointer-events:none;
+    }
+    .nav-btn, .close-btn{
+      pointer-events:auto; appearance:none; border:none; background:#0b1220dd; color:#e5e7eb; border-radius:12px;
+      padding:10px 12px; box-shadow: 0 6px 18px #0006, inset 0 0 0 1px #ffffff22; cursor:pointer; font-weight:700;
+    }
+    .nav-btn{ position:absolute; top:50%; transform:translateY(-50%); }
+    #gPrev{ left:10px; } #gNext{ right:10px; }
+    .close-btn{ position:absolute; top:10px; right:10px; }
+    @media (max-width:560px){
+      .nav-btn{ padding:8px 10px; }
+    }
   </style>
 </head>
 <body>
@@ -210,11 +243,11 @@
       <h2>Galeri Produk</h2>
       <div class="gallery" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px">
         <figure style="margin:0">
-          <img src="assets/kaos-ganesipala-siang.jpg" alt="Tampilan siang/normal" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
+          <img src="assets/kaos-ganesipala-siang.jpg" alt="Tampilan siang / normal" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
           <figcaption class="hint" style="margin-top:6px">Siang / Normal</figcaption>
         </figure>
         <figure style="margin:0">
-          <img src="assets/kaos-ganesipala-malam.jpg" alt="Tampilan malam/glow - tulisan hijau menyala" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
+          <img src="assets/kaos-ganesipala-malam.jpg" alt="Tampilan malam / glow (kena cahaya)" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
           <figcaption class="hint" style="margin-top:6px">Malam / Glow (kena cahaya)</figcaption>
         </figure>
       </div>
@@ -319,6 +352,17 @@
     </div>
   </dialog>
 
+  <!-- ===== Gallery Lightbox ===== -->
+  <dialog id="galleryModal" aria-labelledby="galleryCap">
+    <button class="close-btn" id="gClose" aria-label="Tutup">✕</button>
+    <button class="nav-btn" id="gPrev" aria-label="Sebelumnya">‹</button>
+    <button class="nav-btn" id="gNext" aria-label="Berikutnya">›</button>
+    <div class="viewer">
+      <img id="galleryImg" class="viewer-img" alt=""/>
+      <div id="galleryCap" class="viewer-caption"></div>
+    </div>
+  </dialog>
+
   <script>
     const $ = (s, r=document) => r.querySelector(s);
 
@@ -330,13 +374,11 @@
     // Coba play segera beberapa kali (untuk Android/Chrome biasanya jalan)
     let tries = 0, maxTries = 12; // coba ±6 detik (12 x 500ms)
     const tryPlay = async () => {
-      try {
-        if (bgm.paused) await bgm.play();
-      } catch(e) {/* diblokir */ }
+      try { if (bgm.paused) await bgm.play(); } catch(e) {}
       tries++;
       if (!bgm.paused || tries >= maxTries) {
         clearInterval(timer);
-        if (bgm.paused) tip.classList.add('show'); // minta 1 tap kalau masih blokir
+        if (bgm.paused) tip.classList.add('show');
       }
     };
     const timer = setInterval(tryPlay, 500);
@@ -398,6 +440,60 @@
       window.open(waUrl, '_blank');
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
+
+    /* ====== GALLERY LIGHTBOX LOGIC ====== */
+    const galleryImgs = document.querySelectorAll('.gallery img');
+    const gModal   = $('#galleryModal');
+    const gImg     = $('#galleryImg');
+    const gCap     = $('#galleryCap');
+    const gPrev    = $('#gPrev');
+    const gNext    = $('#gNext');
+    const gClose   = $('#gClose');
+    let gIndex = 0;
+
+    function showImage(i){
+      gIndex = (i + galleryImgs.length) % galleryImgs.length;
+      const src = galleryImgs[gIndex].getAttribute('src');
+      const alt = galleryImgs[gIndex].getAttribute('alt') || '';
+      gImg.src = src;
+      gImg.alt = alt;
+      gCap.textContent = alt;
+      if (!gModal.open) gModal.showModal();
+    }
+
+    galleryImgs.forEach((img, i)=>{
+      img.addEventListener('click', ()=> showImage(i));
+    });
+
+    gPrev.addEventListener('click', ()=> showImage(gIndex - 1));
+    gNext.addEventListener('click', ()=> showImage(gIndex + 1));
+    gClose.addEventListener('click', ()=> gModal.close());
+
+    // Tutup jika klik di luar konten
+    gModal.addEventListener('click', (e)=>{
+      const box = gImg.getBoundingClientRect();
+      if (e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom){
+        gModal.close();
+      }
+    });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e)=>{
+      if(!gModal.open) return;
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); showImage(gIndex - 1); }
+      if(e.key === 'ArrowRight'){ e.preventDefault(); showImage(gIndex + 1); }
+      if(e.key === 'Escape'){ gModal.close(); }
+    });
+
+    // Swipe di mobile
+    let touchX = null;
+    gModal.addEventListener('touchstart', (e)=>{ touchX = e.changedTouches[0].clientX; }, {passive:true});
+    gModal.addEventListener('touchend', (e)=>{
+      if(touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if(Math.abs(dx) > 40){ dx > 0 ? showImage(gIndex - 1) : showImage(gIndex + 1); }
+      touchX = null;
+    }, {passive:true});
   </script>
 </body>
 </html>
