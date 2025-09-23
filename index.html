@@ -54,6 +54,50 @@
     .reveal.show{opacity:1; transform:none}
     .audio-tip{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s}
     .audio-tip.show{opacity:1}
+
+    /* ===== Size modal (baru) ===== */
+    dialog#sizeModal{
+      width:min(680px, 92vw); border:none; padding:0; border-radius:18px;
+      background:#0f1222; color:var(--text);
+      box-shadow: 0 20px 60px #000a, inset 0 0 0 1px #ffffff12;
+      overflow:hidden;
+    }
+    dialog::backdrop{background:#0b1020aa; backdrop-filter: blur(4px);}
+    .modal-header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px 16px; border-bottom:1px solid #ffffff12; background:linear-gradient(180deg,#0b1020,#0f1222);
+    }
+    .modal-header strong{font-size:18px}
+    .icon-btn{
+      appearance:none; border:none; background:#0b1220; color:#cbd5e1; width:34px; height:34px; border-radius:10px;
+      display:grid; place-items:center; cursor:pointer; box-shadow: inset 0 0 0 1px #ffffff1a;
+    }
+    .icon-btn:hover{box-shadow: inset 0 0 0 1px #ffffff33}
+    .modal-body{padding:16px}
+    .size-hint{color:var(--muted); font-size:13px; margin:0 0 10px}
+
+    /* Tabel ukuran */
+    .size-table{width:100%; border-collapse:collapse; text-align:center; font-size:14px; overflow:hidden; border-radius:12px; box-shadow: inset 0 0 0 1px #ffffff12}
+    .size-table thead th{
+      background:#1e293b; color:#a5b4fc; padding:10px; border-bottom:1px solid #ffffff22;
+      letter-spacing:.2px; font-weight:700;
+    }
+    .size-table td{padding:10px}
+    .size-table tbody tr{border-top:1px solid #ffffff0f}
+    .size-table tbody tr:hover{background:#0b1220}
+
+    /* Grid pill alternatif (muncul di layar kecil) */
+    .size-grid{display:none; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top:12px}
+    .pill{
+      padding:10px 12px; border-radius:12px; background:#0b1220; border:1px solid #ffffff1a;
+      display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14px;
+    }
+    .pill b{font-size:15px}
+
+    @media (max-width:520px){
+      .size-table{display:none}
+      .size-grid{display:grid}
+    }
   </style>
 </head>
 <body>
@@ -70,7 +114,7 @@
         </div>
         <h1>Kaos Anniversary GANESIPALA (Glow in the Dark)</h1>
         <p class="lead">Bahan cotton combed 24s, potongan unisex. Pre-order dibuka s/d <strong>30 September 2025</strong>. Pengiriman mulai <strong>10 Oktober 2025</strong>.</p>
-        <p class="price">Harga: Rp149.000</p>
+        <p class="price">Harga: Rp145.000</p>
         <div class="row">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
           <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnSize">Lihat Size Chart</button>
@@ -140,9 +184,9 @@
 
         <h2>Beli kaos dapat apa aja?</h2>
         <ul>
+          <li><strong>Setiap pembelian merchandise free htm acara</strong></li>
           <li><strong>Lanyard Anniversary</strong> (panjang ±80 cm, lebar 2 cm, kait besi)</li>
           <li>Stiker eksklusif GANESIPALA (1 lembar)</li>
-          <li>Gratis tiket masuk camp</li>
           <li>Packaging eksklusif</li>
         </ul>
         <div style="margin-top:10px">
@@ -184,19 +228,42 @@
     </section>
   </div>
 
+  <!-- ===== Size Chart (baru & diperindah) ===== -->
   <dialog id="sizeModal" aria-labelledby="sizeTitle">
     <div class="modal-header">
-      <strong id="sizeTitle">Size Chart</strong>
-      <button class="icon-btn" id="closeSize">✕</button>
+      <strong id="sizeTitle">Size Chart (Dewasa)</strong>
+      <button class="icon-btn" id="closeSize" aria-label="Tutup">✕</button>
     </div>
     <div class="modal-body">
-      <p class="hint">Toleransi 1–2 cm.</p>
-      <div class="size-grid">
-        <div class="pill">S: 48 × 68 cm</div>
-        <div class="pill">M: 50 × 70 cm</div>
-        <div class="pill">L: 52 × 72 cm</div>
-        <div class="pill">XL: 54 × 74 cm</div>
-        <div class="pill">XXL: 56 × 76 cm</div>
+      <p class="size-hint"><span class="hint">L = Lebar dada, P = Panjang badan.</span></p>
+
+      <!-- TABEL untuk layar sedang-besar -->
+      <table class="size-table" aria-label="Tabel size chart">
+        <thead>
+          <tr>
+            <th>Ukuran</th>
+            <th>Lebar (L)</th>
+            <th>Panjang (P)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>S</td>   <td>48 cm</td> <td>69 cm</td></tr>
+          <tr><td>M</td>   <td>50 cm</td> <td>71 cm</td></tr>
+          <tr><td>L</td>   <td>52 cm</td> <td>73 cm</td></tr>
+          <tr><td>XL</td>  <td>54 cm</td> <td>75 cm</td></tr>
+          <tr><td>XXL</td> <td>56 cm</td> <td>77 cm</td></tr>
+          <tr><td>XXXL</td><td>58 cm</td> <td>79 cm</td></tr>
+        </tbody>
+      </table>
+
+      <!-- GRID PILL untuk layar kecil -->
+      <div class="size-grid" aria-label="Daftar ukuran ringkas">
+        <div class="pill"><b>S</b><span>48 × 69 cm</span></div>
+        <div class="pill"><b>M</b><span>50 × 71 cm</span></div>
+        <div class="pill"><b>L</b><span>52 × 73 cm</span></div>
+        <div class="pill"><b>XL</b><span>54 × 75 cm</span></div>
+        <div class="pill"><b>XXL</b><span>56 × 77 cm</span></div>
+        <div class="pill"><b>XXXL</b><span>58 × 79 cm</span></div>
       </div>
     </div>
   </dialog>
