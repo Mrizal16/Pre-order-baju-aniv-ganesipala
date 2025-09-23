@@ -55,7 +55,7 @@
     .audio-tip{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s}
     .audio-tip.show{opacity:1}
 
-    /* ===== Size modal (baru) ===== */
+    /* ===== Size modal ===== */
     dialog#sizeModal{
       width:min(680px, 92vw); border:none; padding:0; border-radius:18px;
       background:#0f1222; color:var(--text);
@@ -76,8 +76,11 @@
     .modal-body{padding:16px}
     .size-hint{color:var(--muted); font-size:13px; margin:0 0 10px}
 
-    /* Tabel ukuran */
-    .size-table{width:100%; border-collapse:collapse; text-align:center; font-size:14px; overflow:hidden; border-radius:12px; box-shadow: inset 0 0 0 1px #ffffff12}
+    /* Tabel ukuran (desktop & tablet) */
+    .size-table{
+      width:100%; border-collapse:collapse; text-align:center; font-size:14px; overflow:hidden;
+      border-radius:12px; box-shadow: inset 0 0 0 1px #ffffff12
+    }
     .size-table thead th{
       background:#1e293b; color:#a5b4fc; padding:10px; border-bottom:1px solid #ffffff22;
       letter-spacing:.2px; font-weight:700;
@@ -86,13 +89,20 @@
     .size-table tbody tr{border-top:1px solid #ffffff0f}
     .size-table tbody tr:hover{background:#0b1220}
 
-    /* Grid pill alternatif (muncul di layar kecil) */
-    .size-grid{display:none; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top:12px}
+    /* Grid pill (mobile) */
+    .size-grid{display:none; grid-template-columns: repeat(1, minmax(0,1fr)); gap:10px; margin-top:12px}
     .pill{
-      padding:10px 12px; border-radius:12px; background:#0b1220; border:1px solid #ffffff1a;
+      padding:12px; border-radius:14px; background:#0b1220; border:1px solid #ffffff1a;
       display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14px;
     }
-    .pill b{font-size:15px}
+    .pill b{font-size:15px; letter-spacing:.3px}
+    .chip-wrap{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+      background:#0a0f1a; border:1px solid #ffffff1a; font-variant-numeric:tabular-nums;
+    }
+    .chip .k{font-weight:800; color:#a5b4fc}
+    .chip .v{opacity:.95}
 
     @media (max-width:520px){
       .size-table{display:none}
@@ -184,7 +194,7 @@
 
         <h2>Beli kaos dapat apa aja?</h2>
         <ul>
-          <li><strong>Setiap Pembelian Marchendise Free Htm Acara</strong></li>
+          <li><strong>Setiap Pembelian Marchendise Free Htm Acara</strong></li>
           <li><strong>Lanyard Anniversary</strong> (panjang ±80 cm, lebar 2 cm, kait besi)</li>
           <li>Stiker eksklusif GANESIPALA (1 lembar)</li>
           <li>Packaging eksklusif</li>
@@ -228,7 +238,7 @@
     </section>
   </div>
 
-  <!-- ===== Size Chart (baru & diperindah) ===== -->
+  <!-- ===== Size Chart ===== -->
   <dialog id="sizeModal" aria-labelledby="sizeTitle">
     <div class="modal-header">
       <strong id="sizeTitle">Size Chart (Dewasa)</strong>
@@ -256,14 +266,55 @@
         </tbody>
       </table>
 
-      <!-- GRID PILL untuk layar kecil -->
+      <!-- GRID PILL untuk layar kecil (jelas L / P) -->
       <div class="size-grid" aria-label="Daftar ukuran ringkas">
-        <div class="pill"><b>S</b><span>48 × 69 cm</span></div>
-        <div class="pill"><b>M</b><span>50 × 71 cm</span></div>
-        <div class="pill"><b>L</b><span>52 × 73 cm</span></div>
-        <div class="pill"><b>XL</b><span>54 × 75 cm</span></div>
-        <div class="pill"><b>XXL</b><span>56 × 77 cm</span></div>
-        <div class="pill"><b>XXXL</b><span>58 × 79 cm</span></div>
+        <div class="pill" aria-label="Ukuran S, Lebar 48 cm, Panjang 69 cm">
+          <b>S</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">48 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">69 cm</span></span>
+          </div>
+        </div>
+
+        <div class="pill" aria-label="Ukuran M, Lebar 50 cm, Panjang 71 cm">
+          <b>M</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">50 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">71 cm</span></span>
+          </div>
+        </div>
+
+        <div class="pill" aria-label="Ukuran L, Lebar 52 cm, Panjang 73 cm">
+          <b>L</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">52 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">73 cm</span></span>
+          </div>
+        </div>
+
+        <div class="pill" aria-label="Ukuran XL, Lebar 54 cm, Panjang 75 cm">
+          <b>XL</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">54 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">75 cm</span></span>
+          </div>
+        </div>
+
+        <div class="pill" aria-label="Ukuran XXL, Lebar 56 cm, Panjang 77 cm">
+          <b>XXL</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">56 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">77 cm</span></span>
+          </div>
+        </div>
+
+        <div class="pill" aria-label="Ukuran XXXL, Lebar 58 cm, Panjang 79 cm">
+          <b>XXXL</b>
+          <div class="chip-wrap">
+            <span class="chip"><span class="k">L</span><span class="v">58 cm</span></span>
+            <span class="chip"><span class="k">P</span><span class="v">79 cm</span></span>
+          </div>
+        </div>
       </div>
     </div>
   </dialog>
@@ -289,7 +340,6 @@
       }
     };
     const timer = setInterval(tryPlay, 500);
-    // juga coba saat load & pageshow (kembali dari background)
     window.addEventListener('load', tryPlay, {once:true});
     window.addEventListener('pageshow', tryPlay, {once:true});
     document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tryPlay(); });
@@ -333,7 +383,7 @@
       }
       submitBtn.disabled = true;
 
-      const teks = `Halo Admin, saya ingin PO kaos GANESIPALA:\n\n`+
+      const teks = `Halo Admin, saya ingin PO kaos Anniversary GANESIPALA:\n\n`+
         `Nama: ${data.nama}\n`+
         `WhatsApp: ${data.wa}\n`+
         `Alamat: ${data.alamat}\n`+
