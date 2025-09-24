@@ -168,6 +168,14 @@
       display:flex; align-items:center; justify-content:center; cursor:pointer;
     }
     #muteBtn svg{width:22px; height:22px; fill:currentColor}
+    @media (max-width: 520px){
+      .gallery{
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .gallery img{ width: 100%; }
+    }
   </style>
 </head>
 <body>
