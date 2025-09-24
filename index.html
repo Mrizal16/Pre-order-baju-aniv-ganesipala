@@ -56,6 +56,26 @@
     .audio-tip{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#111827ee; color:#e5e7eb; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22; font-size:13px; opacity:0; pointer-events:none; transition:.2s}
     .audio-tip.show{opacity:1}
 
+    /* ===== Bonus items grid (2×2) ===== */
+    .bonus-grid{
+      display:grid; gap:14px;
+      grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 kolom */
+      margin-top:14px;
+    }
+    @media (max-width: 520px){
+      .bonus-grid{ grid-template-columns: 1fr; } /* 1 kolom di layar kecil */
+    }
+    .bonus-card{
+      background:#0b1220; border:1px solid #ffffff12; border-radius:12px; padding:10px;
+      display:flex; flex-direction:column; gap:8px; align-items:center; text-align:center;
+    }
+    .bonus-card img{
+      width:100%; aspect-ratio: 4/3; object-fit:cover; border-radius:8px; display:block;
+      cursor: zoom-in;
+    }
+    .bonus-title{ font-weight:700; font-size:14px }
+    .bonus-hint{ color:#a5b4fc; font-size:12px }
+
     /* ===== Size modal ===== */
     dialog#sizeModal{
       width:min(680px, 92vw); border:none; padding:0; border-radius:18px;
@@ -117,7 +137,7 @@
     }
     .gallery img:hover{ transform: scale(1.01); }
     dialog#galleryModal{
-      border:none; padding:0; width:min(96vw, 1100px); background:#0b1020; color:var(--text);
+      border:none; padding:0; width:min(96vw, 1100px); background:#0b1020; color:#f1f5f9;
       border-radius:16px; overflow:hidden; box-shadow: 0 24px 70px #000b, inset 0 0 0 1px #ffffff1a;
     }
     dialog#galleryModal::backdrop{ background:#0009; backdrop-filter: blur(4px); }
@@ -129,9 +149,6 @@
       box-shadow: inset 0 0 0 1px #ffffff12;
     }
     .viewer-caption{ color:#a5b4fc; font-size:14px; padding:0 4px 8px 4px; }
-    .viewer-actions{
-      position:absolute; inset:auto 0 0 0; display:flex; justify-content:space-between; padding:12px; pointer-events:none;
-    }
     .nav-btn, .close-btn{
       pointer-events:auto; appearance:none; border:none; background:#0b1220dd; color:#e5e7eb; border-radius:12px;
       padding:10px 12px; box-shadow: 0 6px 18px #0006, inset 0 0 0 1px #ffffff22; cursor:pointer; font-weight:700;
@@ -158,7 +175,7 @@
         </div>
         <h1>Kaos Anniversary GANESIPALA (Glow in the Dark)</h1>
         <p class="lead">Bahan cotton combed 24s, potongan unisex. Pre-order dibuka s/d <strong>30 September 2025</strong>. Pengiriman mulai <strong>25 Oktober 2025</strong>.</p>
-        <p class="price">Harga: Rp145.000</p>
+        <p class="price">Harga: Rp135.000</p>
         <div class="row">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
           <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnSize">Lihat Size Chart</button>
@@ -230,12 +247,44 @@
         <ul>
           <li><strong>Setiap Pembelian Marchendise Free Htm Acara</strong></li>
           <li><strong>Lanyard Anniversary</strong> (panjang ±80 cm, lebar 2 cm, kait besi)</li>
+          <li>BOX Exclusiv</li>
           <li>Stiker eksklusif GANESIPALA (1 lembar)</li>
           <li>Packaging eksklusif</li>
         </ul>
-        <div style="margin-top:10px">
-          <img src="assets/bonus-lanyard.jpg" alt="Bonus Lanyard Anniversary GANESIPALA"
-               style="width:55%; max-width:380px; display:block; margin:8px auto; border-radius:12px; border:1px solid #ffffff12"/>
+
+        <!-- ===== Foto Bonus: 2×2 grid ===== -->
+        <div class="bonus-grid" aria-label="Bonus merchandise">
+          <figure class="bonus-card">
+            <img src="assets/bonus-lanyard.jpg" alt="Lanyard Anniversary GANESIPALA" loading="lazy" />
+            <figcaption>
+              <div class="bonus-title">Lanyard Anniversary</div>
+              <div class="bonus-hint">±80 cm • lebar 2 cm • kait besi</div>
+            </figcaption>
+          </figure>
+
+          <figure class="bonus-card">
+            <img src="assets/box.png" alt="BOX Eksklusif GANESIPALA" loading="lazy" />
+            <figcaption>
+              <div class="bonus-title">BOX Eksklusif</div>
+              <div class="bonus-hint">Kemasan premium</div>
+            </figcaption>
+          </figure>
+
+          <figure class="bonus-card">
+            <img src="assets/ZIPLOCK.png" alt="Ziplock Eksklusif GANESIPALA" loading="lazy" />
+            <figcaption>
+              <div class="bonus-title">Ziplock Eksklusif</div>
+              <div class="bonus-hint">Melindungi kaos saat pengiriman</div>
+            </figcaption>
+          </figure>
+
+          <figure class="bonus-card">
+            <img src="assets/paper-bag.png" alt="Paper Bag Eksklusif GANESIPALA" loading="lazy" />
+            <figcaption>
+              <div class="bonus-title">Paper Bag Eksklusif</div>
+              <div class="bonus-hint">Kemasan hadiah rapi</div>
+            </figcaption>
+          </figure>
         </div>
       </aside>
     </div>
@@ -244,11 +293,11 @@
       <h2>Galeri Produk</h2>
       <div class="gallery" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px">
         <figure style="margin:0">
-          <img src="assets/kaos-ganesipala-siang.jpg" alt="Tampilan siang / normal" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
+          <img src="assets/kaos-ganesipala-siang.jpg" alt="Tampilan siang / normal" loading="lazy" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
           <figcaption class="hint" style="margin-top:6px">Siang / Normal</figcaption>
         </figure>
         <figure style="margin:0">
-          <img src="assets/kaos-ganesipala-malam.jpg" alt="Tampilan malam / glow (kena cahaya)" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
+          <img src="assets/kaos-ganesipala-malam.jpg" alt="Tampilan malam / glow (kena cahaya)" loading="lazy" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
           <figcaption class="hint" style="margin-top:6px">Malam / Glow (kena cahaya)</figcaption>
         </figure>
       </div>
@@ -447,33 +496,46 @@
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
 
-    /* ====== GALLERY LIGHTBOX LOGIC ====== */
-    const galleryImgs = document.querySelectorAll('.gallery img');
+    /* ====== GALLERY LIGHTBOX LOGIC ======
+       Menangani gambar di .gallery dan .bonus-grid */
+    let galleryImgs = null;
+    let gIndex = 0;
+
     const gModal   = $('#galleryModal');
     const gImg     = $('#galleryImg');
     const gCap     = $('#galleryCap');
-    const gPrev    = $('#gPrev');
-    const gNext    = $('#gNext');
-    const gClose   = $('#gClose');
-    let gIndex = 0;
+    const btnPrev  = $('#gPrev');
+    const btnNext  = $('#gNext');
+    const btnClose = $('#gClose');
+
+    function buildImageList(){
+      galleryImgs = Array.from(document.querySelectorAll('.gallery img, .bonus-grid img'));
+    }
 
     function showImage(i){
+      if(!galleryImgs) buildImageList();
       gIndex = (i + galleryImgs.length) % galleryImgs.length;
-      const src = galleryImgs[gIndex].getAttribute('src');
-      const alt = galleryImgs[gIndex].getAttribute('alt') || '';
+      const node = galleryImgs[gIndex];
+      const src = node.getAttribute('src');
+      const alt = node.getAttribute('alt') || '';
       gImg.src = src;
       gImg.alt = alt;
       gCap.textContent = alt;
       if (!gModal.open) gModal.showModal();
     }
 
-    galleryImgs.forEach((img, i)=>{
-      img.addEventListener('click', ()=> showImage(i));
-    });
+    function wireClicks(){
+      if(!galleryImgs) buildImageList();
+      galleryImgs.forEach((img, i)=>{
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', ()=> showImage(i));
+      });
+    }
 
-    gPrev.addEventListener('click', ()=> showImage(gIndex - 1));
-    gNext.addEventListener('click', ()=> showImage(gIndex + 1));
-    gClose.addEventListener('click', ()=> gModal.close());
+    // tombol navigasi
+    btnPrev.addEventListener('click', ()=> showImage(gIndex - 1));
+    btnNext.addEventListener('click', ()=> showImage(gIndex + 1));
+    btnClose.addEventListener('click', ()=> gModal.close());
 
     // Tutup jika klik di luar konten
     gModal.addEventListener('click', (e)=>{
@@ -500,6 +562,9 @@
       if(Math.abs(dx) > 40){ dx > 0 ? showImage(gIndex - 1) : showImage(gIndex + 1); }
       touchX = null;
     }, {passive:true});
+
+    // Inisialisasi
+    window.addEventListener('load', wireClicks);
   </script>
 </body>
 </html>
