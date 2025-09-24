@@ -159,12 +159,28 @@
     @media (max-width:560px){
       .nav-btn{ padding:8px 10px; }
     }
+
+    /* ===== Tombol Mute/Play ===== */
+    #muteBtn{
+      position:fixed; right:20px; bottom:20px; z-index:1000;
+      background:#0b1220dd; color:#e2e8f0; border:1px solid #ffffff22;
+      width:46px; height:46px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    #muteBtn svg{width:22px; height:22px; fill:currentColor}
   </style>
 </head>
 <body>
   <!-- Mode paksa autoplay: langsung nyala (unmuted). Browser yang blokir akan kita retry. -->
   <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop playsinline autoplay></audio>
   <div id="audioTip" class="audio-tip">tap sekali untuk menyalakan musik…</div>
+  <!-- Tombol Mute/Play (aksesibel) -->
+  <button id="muteBtn" aria-label="Matikan musik" aria-pressed="false" title="Mute/Play">
+    <!-- ikon speaker ON -->
+    <svg id="icon-sound" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 9v6h4l5 5V4l-5 5H5z"/>
+    </svg>
+  </button>
 
   <div class="container">
     <header>
@@ -174,7 +190,7 @@
           <div class="badge" aria-label="pre-order badge">⬤ PRE-ORDER</div>
         </div>
         <h1>Kaos Anniversary GANESIPALA (Glow in the Dark)</h1>
-        <p class="lead">Bahan cotton combed 24s, potongan unisex. Pre-order dibuka s/d <strong>30 September 2025</strong>. Pengiriman mulai <strong>25 Oktober 2025</strong>.</p>
+        <p class="lead">Bahan cotton combed 24s. Pre-order dibuka s/d <strong>29 September 2025</strong>. Close order <strong>05 November 2025</strong>.</p>
         <p class="price">Harga: Rp135.000</p>
         <div class="row">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
@@ -245,11 +261,12 @@
 
         <h2>Beli kaos dapat apa aja?</h2>
         <ul>
-          <li><strong>Setiap Pembelian Marchendise Free Htm Acara</strong></li>
-          <li><strong>Lanyard Anniversary</strong> (panjang ±80 cm, lebar 2 cm, kait besi)</li>
-          <li>BOX Exclusiv</li>
-          <li>Stiker eksklusif GANESIPALA (1 lembar)</li>
-          <li>Packaging eksklusif</li>
+          <li>Setiap Pembelian Marchendise <strong>Free Htm</strong> Acara</li>
+          <li>Lanyard Anniversary (panjang ±80 cm, lebar 2 cm, kait besi)</li>
+          <li>BOX Eksklusif</li>
+          <li>Ziplock Eksklusif</li>
+          <li>Paper Bag Eksklusif</li>
+          <li>Stiker</li>
         </ul>
 
         <!-- ===== Foto Bonus: 2×2 grid ===== -->
@@ -424,6 +441,8 @@
     /* ====== AUTOPLAY “MAKSIMAL” ====== */
     const bgm = document.getElementById('bgm');
     const tip = document.getElementById('audioTip');
+    const muteBtn = document.getElementById('muteBtn');
+    const icon = document.getElementById('icon-sound');
     bgm.volume = 1.0;
 
     // Coba play segera beberapa kali (untuk Android/Chrome biasanya jalan)
@@ -448,13 +467,31 @@
     window.addEventListener('touchstart', kick, {once:true});
     window.addEventListener('keydown', kick, {once:true});
 
-    /* ====== UI lainnya ====== */
-    $('#btnScroll').addEventListener('click', ()=> {
-      $('#formSection').scrollIntoView({behavior:'smooth', block:'start'});
+    // ===== Tombol Mute/Play (aksesibel)
+    muteBtn.addEventListener('click', ()=>{
+      if (bgm.muted || bgm.paused) {
+        bgm.muted = false;
+        bgm.play().catch(()=>{});
+        muteBtn.setAttribute('aria-label','Matikan musik');
+        muteBtn.setAttribute('aria-pressed','false');
+        // ikon speaker ON
+        icon.innerHTML = '<path d="M5 9v6h4l5 5V4l-5 5H5z"/>';
+      } else {
+        bgm.muted = true;
+        muteBtn.setAttribute('aria-label','Nyalakan musik');
+        muteBtn.setAttribute('aria-pressed','true');
+        // ikon “speaker dengan gelombang” (indikator dimatikan bisa juga X, tapi ini simple)
+        icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/><path d="M5 9v6h4l5 5V4l-5 5H5z"/>';
+      }
     });
-    const dlg = $('#sizeModal');
-    $('#btnSize').addEventListener('click', ()=> dlg.showModal());
-    $('#closeSize').addEventListener('click', ()=> dlg.close());
+
+    /* ====== UI lainnya ====== */
+    document.getElementById('btnScroll').addEventListener('click', ()=> {
+      document.getElementById('formSection').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    const dlg = document.getElementById('sizeModal');
+    document.getElementById('btnSize').addEventListener('click', ()=> dlg.showModal());
+    document.getElementById('closeSize').addEventListener('click', ()=> dlg.close());
 
     function revealOnScroll(){
       document.querySelectorAll('.reveal').forEach(el=>{
@@ -465,8 +502,8 @@
     window.addEventListener('scroll', revealOnScroll);
     window.addEventListener('load', revealOnScroll);
 
-    const form = $('#poForm');
-    const submitBtn = $('#submitBtn');
+    const form = document.getElementById('poForm');
+    const submitBtn = document.getElementById('submitBtn');
     function validPhone(v){ return /^\d{9,15}$/.test(v); }
 
     form.addEventListener('submit', (e)=>{
@@ -492,7 +529,8 @@
 
       const admin = '6285183301397';
       const waUrl = `https://wa.me/${admin}?text=${encodeURIComponent(teks)}`;
-      window.open(waUrl, '_blank');
+      const w = window.open(waUrl, '_blank', 'noopener,noreferrer'); // aman
+      if (w) w.opener = null; // hardening
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
 
@@ -501,12 +539,12 @@
     let galleryImgs = null;
     let gIndex = 0;
 
-    const gModal   = $('#galleryModal');
-    const gImg     = $('#galleryImg');
-    const gCap     = $('#galleryCap');
-    const btnPrev  = $('#gPrev');
-    const btnNext  = $('#gNext');
-    const btnClose = $('#gClose');
+    const gModal   = document.getElementById('galleryModal');
+    const gImg     = document.getElementById('galleryImg');
+    const gCap     = document.getElementById('galleryCap');
+    const btnPrev  = document.getElementById('gPrev');
+    const btnNext  = document.getElementById('gNext');
+    const btnClose = document.getElementById('gClose');
 
     function buildImageList(){
       galleryImgs = Array.from(document.querySelectorAll('.gallery img, .bonus-grid img'));
