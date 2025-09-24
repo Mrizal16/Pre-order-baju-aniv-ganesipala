@@ -59,11 +59,11 @@
     /* ===== Bonus items grid (2×2) ===== */
     .bonus-grid{
       display:grid; gap:14px;
-      grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 kolom */
+      grid-template-columns: repeat(2, minmax(0,1fr));
       margin-top:14px;
     }
     @media (max-width: 520px){
-      .bonus-grid{ grid-template-columns: 1fr; } /* 1 kolom di layar kecil */
+      .bonus-grid{ grid-template-columns: 1fr; }
     }
     .bonus-card{
       background:#0b1220; border:1px solid #ffffff12; border-radius:12px; padding:10px;
@@ -130,12 +130,35 @@
       .size-grid{display:grid}
     }
 
-    /* ===== Gallery enhancements ===== */
+    /* ===== Gallery section header & layout ===== */
+    .section-head{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:10px;
+    }
+    .section-head h2{ margin:0; }
+    .link-btn{
+      appearance:none; background:#0b1220; color:#e2e8f0;
+      border:1px solid #ffffff22; padding:10px 12px; border-radius:10px;
+      font-weight:700; cursor:pointer;
+    }
+    .link-btn:hover{ border-color:#ffffff44 }
+
+    .gallery{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
     .gallery img{
       cursor: zoom-in;
       transition: transform .15s ease, box-shadow .15s ease;
     }
     .gallery img:hover{ transform: scale(1.01); }
+
+    @media (max-width: 520px){
+      .section-head{ flex-direction:column; align-items:flex-start; gap:8px; }
+      .gallery{ grid-template-columns: 1fr; }
+    }
+
     dialog#galleryModal{
       border:none; padding:0; width:min(96vw, 1100px); background:#0b1020; color:#f1f5f9;
       border-radius:16px; overflow:hidden; box-shadow: 0 24px 70px #000b, inset 0 0 0 1px #ffffff1a;
@@ -168,13 +191,22 @@
       display:flex; align-items:center; justify-content:center; cursor:pointer;
     }
     #muteBtn svg{width:22px; height:22px; fill:currentColor}
-    @media (max-width: 520px){
-      .gallery{
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-      }
-      .gallery img{ width: 100%; }
+    .link-btn{
+      appearance:none;
+      background:linear-gradient(180deg, var(--brand), var(--brand-600));
+      color:#04110a;
+      border:none;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+      box-shadow:0 6px 20px #16a34a55, inset 0 1px 0 #ffffff55;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .link-btn:hover{
+      transform:scale(1.05);
+      box-shadow:0 0 18px #7CFF00cc, inset 0 1px 0 #ffffff66;
     }
   </style>
 </head>
@@ -202,7 +234,8 @@
         <p class="price">Harga: Rp135.000</p>
         <div class="row">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
-          <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnSize">Lihat Size Chart</button>
+          <!-- ganti tombol ini agar menuju galeri -->
+          <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnGallery">Lihat Galeri Produk</button>
         </div>
         <p class="hint">Stok dibuat sesuai jumlah PO. Pastikan data & ukuran sudah benar ya ✨</p>
       </div>
@@ -314,9 +347,14 @@
       </aside>
     </div>
 
-    <section class="card reveal" style="margin-top:18px">
-      <h2>Galeri Produk</h2>
-      <div class="gallery" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px">
+    <!-- ===== Galeri Produk + tombol Size Chart di kanan judul ===== -->
+    <section class="card reveal" id="gallerySection" style="margin-top:18px">
+      <div class="section-head">
+        <h2>Galeri Produk</h2>
+        <!-- Tombol lebih mencolok -->
+        <button class="link-btn" id="btnSize">🔎 Lihat Size Chart</button>
+      </div>
+      <div class="gallery">
         <figure style="margin:0">
           <img src="assets/kaos-ganesipala-siang.jpg" alt="Tampilan siang / normal" loading="lazy" style="width:100%; border-radius:12px; border:1px solid #ffffff12"/>
           <figcaption class="hint" style="margin-top:6px">Siang / Normal</figcaption>
@@ -453,8 +491,8 @@
     const icon = document.getElementById('icon-sound');
     bgm.volume = 1.0;
 
-    // Coba play segera beberapa kali (untuk Android/Chrome biasanya jalan)
-    let tries = 0, maxTries = 12; // coba ±6 detik (12 x 500ms)
+    // Coba play segera beberapa kali
+    let tries = 0, maxTries = 12;
     const tryPlay = async () => {
       try { if (bgm.paused) await bgm.play(); } catch(e) {}
       tries++;
@@ -482,21 +520,27 @@
         bgm.play().catch(()=>{});
         muteBtn.setAttribute('aria-label','Matikan musik');
         muteBtn.setAttribute('aria-pressed','false');
-        // ikon speaker ON
         icon.innerHTML = '<path d="M5 9v6h4l5 5V4l-5 5H5z"/>';
       } else {
         bgm.muted = true;
         muteBtn.setAttribute('aria-label','Nyalakan musik');
         muteBtn.setAttribute('aria-pressed','true');
-        // ikon “speaker dengan gelombang” (indikator dimatikan bisa juga X, tapi ini simple)
         icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/><path d="M5 9v6h4l5 5V4l-5 5H5z"/>';
       }
     });
 
     /* ====== UI lainnya ====== */
+    // Pesan Sekarang -> scroll ke form
     document.getElementById('btnScroll').addEventListener('click', ()=> {
       document.getElementById('formSection').scrollIntoView({behavior:'smooth', block:'start'});
     });
+
+    // Lihat Galeri Produk -> scroll ke galeri
+    document.getElementById('btnGallery').addEventListener('click', ()=>{
+      document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    // Size Chart di header galeri membuka modal
     const dlg = document.getElementById('sizeModal');
     document.getElementById('btnSize').addEventListener('click', ()=> dlg.showModal());
     document.getElementById('closeSize').addEventListener('click', ()=> dlg.close());
@@ -537,13 +581,12 @@
 
       const admin = '6285183301397';
       const waUrl = `https://wa.me/${admin}?text=${encodeURIComponent(teks)}`;
-      const w = window.open(waUrl, '_blank', 'noopener,noreferrer'); // aman
-      if (w) w.opener = null; // hardening
+      const w = window.open(waUrl, '_blank', 'noopener,noreferrer');
+      if (w) w.opener = null;
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
 
-    /* ====== GALLERY LIGHTBOX LOGIC ======
-       Menangani gambar di .gallery dan .bonus-grid */
+    /* ====== GALLERY LIGHTBOX LOGIC ====== */
     let galleryImgs = null;
     let gIndex = 0;
 
