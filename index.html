@@ -130,19 +130,31 @@
       .size-grid{display:grid}
     }
 
-    /* ===== Gallery section header & layout ===== */
+    /* ===== Header Galeri & tombol Size Chart (mencolok) ===== */
     .section-head{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       margin-bottom:10px;
     }
     .section-head h2{ margin:0; }
     .link-btn{
-      appearance:none; background:#0b1220; color:#e2e8f0;
-      border:1px solid #ffffff22; padding:10px 12px; border-radius:10px;
-      font-weight:700; cursor:pointer;
+      appearance:none;
+      background:linear-gradient(180deg, var(--brand), var(--brand-600));
+      color:#04110a;
+      border:none;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+      box-shadow:0 6px 20px #16a34a55, inset 0 1px 0 #ffffff55;
+      transition: transform .15s ease, box-shadow .15s ease;
     }
-    .link-btn:hover{ border-color:#ffffff44 }
+    .link-btn:hover{
+      transform:scale(1.05);
+      box-shadow:0 0 18px #7CFF00cc, inset 0 1px 0 #ffffff66;
+    }
 
+    /* ===== Galeri ===== */
     .gallery{
       display:grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -159,6 +171,7 @@
       .gallery{ grid-template-columns: 1fr; }
     }
 
+    /* ===== Lightbox ===== */
     dialog#galleryModal{
       border:none; padding:0; width:min(96vw, 1100px); background:#0b1020; color:#f1f5f9;
       border-radius:16px; overflow:hidden; box-shadow: 0 24px 70px #000b, inset 0 0 0 1px #ffffff1a;
@@ -191,32 +204,24 @@
       display:flex; align-items:center; justify-content:center; cursor:pointer;
     }
     #muteBtn svg{width:22px; height:22px; fill:currentColor}
-    .link-btn{
-      appearance:none;
-      background:linear-gradient(180deg, var(--brand), var(--brand-600));
-      color:#04110a;
-      border:none;
-      padding:12px 16px;
-      border-radius:12px;
-      font-weight:800;
-      font-size:15px;
-      cursor:pointer;
-      box-shadow:0 6px 20px #16a34a55, inset 0 1px 0 #ffffff55;
-      transition: transform .15s ease, box-shadow .15s ease;
+
+    /* ===== Multi-size field ===== */
+    .ukuran-group{
+      display:grid; gap:12px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
     }
-    .link-btn:hover{
-      transform:scale(1.05);
-      box-shadow:0 0 18px #7CFF00cc, inset 0 1px 0 #ffffff66;
+    @media (max-width:720px){
+      .ukuran-group{ grid-template-columns: 1fr; }
     }
+    .ukuran-item{ background:#0b1220; border:1px solid #ffffff12; border-radius:12px; padding:12px; }
   </style>
 </head>
 <body>
-  <!-- Mode paksa autoplay: langsung nyala (unmuted). Browser yang blokir akan kita retry. -->
+  <!-- Mode paksa autoplay -->
   <audio id="bgm" src="assets/lagu.mp3" preload="auto" loop playsinline autoplay></audio>
   <div id="audioTip" class="audio-tip">tap sekali untuk menyalakan musik…</div>
-  <!-- Tombol Mute/Play (aksesibel) -->
+  <!-- Tombol Mute/Play -->
   <button id="muteBtn" aria-label="Matikan musik" aria-pressed="false" title="Mute/Play">
-    <!-- ikon speaker ON -->
     <svg id="icon-sound" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M5 9v6h4l5 5V4l-5 5H5z"/>
     </svg>
@@ -230,11 +235,10 @@
           <div class="badge" aria-label="pre-order badge">⬤ PRE-ORDER</div>
         </div>
         <h1>Kaos Anniversary GANESIPALA (Glow in the Dark)</h1>
-        <p class="lead">Bahan cotton combed 24s. Pre-order dibuka s/d <strong>29 September 2025</strong>. Close order <strong>05 November 2025</strong>.</p>
+        <p class="lead">Pre-order dibuka s/d <strong>29 September 2025</strong>, Close order <strong>05 November 2025</strong>.</p>
         <p class="price">Harga: Rp135.000</p>
         <div class="row">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
-          <!-- ganti tombol ini agar menuju galeri -->
           <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnGallery">Lihat Galeri Produk</button>
         </div>
         <p class="hint">Stok dibuat sesuai jumlah PO. Pastikan data & ukuran sudah benar ya ✨</p>
@@ -264,16 +268,15 @@
           <textarea id="alamat" name="alamat" required placeholder="Jalan, RT/RW, Kel/Desa, Kec, Kota/Kab, Provinsi, Kode Pos"></textarea>
 
           <div class="row">
+            <!-- ==== Ukuran dinamis (sesuai jumlah) ==== -->
             <div>
-              <label for="ukuran">Ukuran</label>
-              <select id="ukuran" name="ukuran" required>
-                <option value="">Pilih ukuran</option>
-                <option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option>
-              </select>
+              <label>Ukuran</label>
+              <div id="ukuranGroup" class="ukuran-group" aria-live="polite"></div>
             </div>
             <div>
               <label for="jumlah">Jumlah</label>
               <input id="jumlah" name="jumlah" type="number" min="1" value="1" required />
+              <div class="hint">Setel jumlah untuk menambah kolom ukuran.</div>
             </div>
           </div>
 
@@ -294,6 +297,7 @@
         <h2>Detail Produk</h2>
         <ul>
           <li>Bahan: Cotton Combed 24s</li>
+          <li>Plastisol  Hight Desity GLOW IN THE DARK</li>
           <li>Warna: <strong>Hitam</strong></li>
           <li>Desain: Glow in the Dark (huruf hijau menyala saat gelap/kena cahaya)</li>
           <li>Edisi Anniversary GANESIPALA XII</li>
@@ -347,11 +351,10 @@
       </aside>
     </div>
 
-    <!-- ===== Galeri Produk + tombol Size Chart di kanan judul ===== -->
+    <!-- ===== Galeri Produk + tombol Size Chart ===== -->
     <section class="card reveal" id="gallerySection" style="margin-top:18px">
       <div class="section-head">
         <h2>Galeri Produk</h2>
-        <!-- Tombol lebih mencolok -->
         <button class="link-btn" id="btnSize">🔎 Lihat Size Chart</button>
       </div>
       <div class="gallery">
@@ -389,7 +392,7 @@
     </section>
   </div>
 
-  <!-- ===== Size Chart ===== -->
+  <!-- ===== Size Chart (Modal) ===== -->
   <dialog id="sizeModal" aria-labelledby="sizeTitle">
     <div class="modal-header">
       <strong id="sizeTitle">Size Chart (Dewasa)</strong>
@@ -398,7 +401,6 @@
     <div class="modal-body">
       <p class="size-hint"><span class="hint">L = Lebar dada, P = Panjang badan.</span></p>
 
-      <!-- TABEL untuk layar sedang-besar -->
       <table class="size-table" aria-label="Tabel size chart">
         <thead>
           <tr>
@@ -417,7 +419,6 @@
         </tbody>
       </table>
 
-      <!-- GRID PILL untuk layar kecil (jelas L / P) -->
       <div class="size-grid" aria-label="Daftar ukuran ringkas">
         <div class="pill" aria-label="Ukuran S, Lebar 48 cm, Panjang 69 cm">
           <b>S</b>
@@ -426,7 +427,6 @@
             <span class="chip"><span class="k">P</span><span class="v">69 cm</span></span>
           </div>
         </div>
-
         <div class="pill" aria-label="Ukuran M, Lebar 50 cm, Panjang 71 cm">
           <b>M</b>
           <div class="chip-wrap">
@@ -434,7 +434,6 @@
             <span class="chip"><span class="k">P</span><span class="v">71 cm</span></span>
           </div>
         </div>
-
         <div class="pill" aria-label="Ukuran L, Lebar 52 cm, Panjang 73 cm">
           <b>L</b>
           <div class="chip-wrap">
@@ -442,7 +441,6 @@
             <span class="chip"><span class="k">P</span><span class="v">73 cm</span></span>
           </div>
         </div>
-
         <div class="pill" aria-label="Ukuran XL, Lebar 54 cm, Panjang 75 cm">
           <b>XL</b>
           <div class="chip-wrap">
@@ -450,7 +448,6 @@
             <span class="chip"><span class="k">P</span><span class="v">75 cm</span></span>
           </div>
         </div>
-
         <div class="pill" aria-label="Ukuran XXL, Lebar 56 cm, Panjang 77 cm">
           <b>XXL</b>
           <div class="chip-wrap">
@@ -458,7 +455,6 @@
             <span class="chip"><span class="k">P</span><span class="v">77 cm</span></span>
           </div>
         </div>
-
         <div class="pill" aria-label="Ukuran XXXL, Lebar 58 cm, Panjang 79 cm">
           <b>XXXL</b>
           <div class="chip-wrap">
@@ -491,7 +487,6 @@
     const icon = document.getElementById('icon-sound');
     bgm.volume = 1.0;
 
-    // Coba play segera beberapa kali
     let tries = 0, maxTries = 12;
     const tryPlay = async () => {
       try { if (bgm.paused) await bgm.play(); } catch(e) {}
@@ -506,14 +501,12 @@
     window.addEventListener('pageshow', tryPlay, {once:true});
     document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tryPlay(); });
 
-    // Satu tap apa pun = paksa play
     const kick = () => { bgm.play().catch(()=>{}); tip.classList.remove('show');
       window.removeEventListener('pointerdown', kick); window.removeEventListener('touchstart', kick); window.removeEventListener('keydown', kick); };
     window.addEventListener('pointerdown', kick, {once:true});
     window.addEventListener('touchstart', kick, {once:true});
     window.addEventListener('keydown', kick, {once:true});
 
-    // ===== Tombol Mute/Play (aksesibel)
     muteBtn.addEventListener('click', ()=>{
       if (bgm.muted || bgm.paused) {
         bgm.muted = false;
@@ -530,17 +523,13 @@
     });
 
     /* ====== UI lainnya ====== */
-    // Pesan Sekarang -> scroll ke form
     document.getElementById('btnScroll').addEventListener('click', ()=> {
       document.getElementById('formSection').scrollIntoView({behavior:'smooth', block:'start'});
     });
-
-    // Lihat Galeri Produk -> scroll ke galeri
     document.getElementById('btnGallery').addEventListener('click', ()=>{
       document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'});
     });
 
-    // Size Chart di header galeri membuka modal
     const dlg = document.getElementById('sizeModal');
     document.getElementById('btnSize').addEventListener('click', ()=> dlg.showModal());
     document.getElementById('closeSize').addEventListener('click', ()=> dlg.close());
@@ -554,28 +543,150 @@
     window.addEventListener('scroll', revealOnScroll);
     window.addEventListener('load', revealOnScroll);
 
+    /* ====== Dynamic Sizes ====== */
+    const jumlahInput  = document.getElementById('jumlah');
+    const ukuranGroup  = document.getElementById('ukuranGroup');
+    const SIZE_OPTIONS = ['S','M','L','XL','XXL','XXXL'];
+
+    function makeUkuranRow(index, value=''){
+      const row   = document.createElement('div');
+      row.className = 'ukuran-item';
+
+      const lab   = document.createElement('label');
+      const id    = `ukuran_${index+1}`;
+      lab.setAttribute('for', id);
+      lab.textContent = `Ukuran ${index+1}`;
+
+      const sel   = document.createElement('select');
+      sel.id = id;
+      sel.name = id;
+      sel.required = true;
+      sel.className = 'ukuran-select';
+
+      const opt0 = document.createElement('option');
+      opt0.value = '';
+      opt0.textContent = 'Pilih ukuran';
+      sel.appendChild(opt0);
+
+      SIZE_OPTIONS.forEach(v=>{
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        sel.appendChild(o);
+      });
+
+      if (value) sel.value = value;
+
+      row.appendChild(lab);
+      row.appendChild(sel);
+      return row;
+    }
+
+    function renderUkuranFields(n){
+      // simpan pilihan lama
+      const prev = Array.from(ukuranGroup.querySelectorAll('select')).map(s=>s.value);
+      ukuranGroup.innerHTML = '';
+      for(let i=0;i<n;i++){
+        const val = prev[i] || '';
+        ukuranGroup.appendChild(makeUkuranRow(i, val));
+      }
+    }
+
+    // batasi jumlah (min 1, max 20)
+    function clampJumlah(v){
+      let n = parseInt(v,10);
+      if(isNaN(n) || n < 1) n = 1;
+      if(n > 20) n = 20;
+      return n;
+    }
+
+    // NEW: izinkan input kosong saat mengetik, tapi paksa valid saat blur/submit
+    let lastValidJumlah = clampJumlah(jumlahInput.value || '1');
+    renderUkuranFields(lastValidJumlah);
+
+    jumlahInput.addEventListener('input', ()=>{
+      const raw = jumlahInput.value.trim();
+
+      // jika kosong (sedang menghapus/mengetik), jangan paksa jadi 1
+      if (raw === '') {
+        // biarkan tampilan ukuran tetap dengan lastValidJumlah
+        return;
+      }
+
+      const parsed = parseInt(raw, 10);
+      if (isNaN(parsed)) {
+        // bukan angka -> kembalikan ke last valid
+        jumlahInput.value = String(lastValidJumlah);
+        return;
+      }
+
+      // angka valid: clamp lalu render
+      const n = clampJumlah(parsed);
+      // jangan menimpa ketikan user kalau masih sama; kalau di-clamp (misal >20) baru set
+      if (String(n) !== raw) jumlahInput.value = String(n);
+
+      if (n !== lastValidJumlah) {
+        lastValidJumlah = n;
+        renderUkuranFields(n);
+      }
+    });
+
+    jumlahInput.addEventListener('blur', ()=>{
+      // saat keluar fokus, kosong atau tidak valid -> paksa ke lastValidJumlah minimal 1
+      const raw = jumlahInput.value.trim();
+      if (raw === '' || isNaN(parseInt(raw,10))) {
+        jumlahInput.value = String(lastValidJumlah || 1);
+        renderUkuranFields(lastValidJumlah || 1);
+        return;
+      }
+      const n = clampJumlah(raw);
+      jumlahInput.value = String(n);
+      if (n !== lastValidJumlah) {
+        lastValidJumlah = n;
+        renderUkuranFields(n);
+      }
+    });
+
+    /* ====== Submit ====== */
     const form = document.getElementById('poForm');
     const submitBtn = document.getElementById('submitBtn');
     function validPhone(v){ return /^\d{9,15}$/.test(v); }
 
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
+
+      // pastikan jumlah valid saat submit
+      const n = clampJumlah(jumlahInput.value);
+      jumlahInput.value = String(n);
+      lastValidJumlah = n;
+      renderUkuranFields(n);
+
       const data = Object.fromEntries(new FormData(form).entries());
-      if(!data.nama || !data.wa || !data.alamat || !data.ukuran || !data.jumlah){
+      const jumlah = n;
+
+      const sizeSelects = Array.from(ukuranGroup.querySelectorAll('select'));
+      const sizes = sizeSelects.map(s => s.value);
+
+      if(!data.nama || !data.wa || !data.alamat || !jumlah){
         alert('Lengkapi semua data wajib.'); return;
       }
       if(!validPhone(data.wa)){
         alert('Format WhatsApp tidak valid. Gunakan angka saja, 9–15 digit.'); return;
       }
+      if(sizes.length !== jumlah || sizes.some(v => !v)){
+        alert('Pilih ukuran untuk setiap item sesuai jumlah.'); return;
+      }
+
       submitBtn.disabled = true;
+
+      const sizeLines = sizes.map((v,i)=>`  ${i+1}. ${v}`).join('\n');
 
       const teks = `Halo Admin, saya ingin PO kaos Anniversary GANESIPALA:\n\n`+
         `Nama: ${data.nama}\n`+
         `WhatsApp: ${data.wa}\n`+
         `Alamat: ${data.alamat}\n`+
-        `Ukuran: ${data.ukuran}\n`+
         `Warna: Hitam\n`+
-        `Jumlah: ${data.jumlah}\n`+
+        `Jumlah: ${jumlah}\n`+
+        `Ukuran (per item):\n${sizeLines}\n`+
         `Catatan: ${data.catatan || '-'}\n`+
         `\nDikirim dari halaman pre-order.`;
 
@@ -586,7 +697,7 @@
       setTimeout(()=>{ submitBtn.disabled = false; }, 1200);
     });
 
-    /* ====== GALLERY LIGHTBOX LOGIC ====== */
+    /* ====== GALLERY LIGHTBOX ====== */
     let galleryImgs = null;
     let gIndex = 0;
 
@@ -621,12 +732,10 @@
       });
     }
 
-    // tombol navigasi
     btnPrev.addEventListener('click', ()=> showImage(gIndex - 1));
     btnNext.addEventListener('click', ()=> showImage(gIndex + 1));
     btnClose.addEventListener('click', ()=> gModal.close());
 
-    // Tutup jika klik di luar konten
     gModal.addEventListener('click', (e)=>{
       const box = gImg.getBoundingClientRect();
       if (e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom){
@@ -634,7 +743,6 @@
       }
     });
 
-    // Keyboard navigation
     window.addEventListener('keydown', (e)=>{
       if(!gModal.open) return;
       if(e.key === 'ArrowLeft'){ e.preventDefault(); showImage(gIndex - 1); }
@@ -652,7 +760,6 @@
       touchX = null;
     }, {passive:true});
 
-    // Inisialisasi
     window.addEventListener('load', wireClicks);
   </script>
 </body>
