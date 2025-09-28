@@ -35,6 +35,8 @@
     .hero-media{position:relative; border-radius:18px; overflow:hidden; background:#0b1220; padding:8px; text-align:center;}
     .hero-media img{max-width:100%; height:auto; max-height:350px; object-fit:contain; display:inline-block; border-radius:12px; filter:saturate(1.05)}
     .price{font-weight:800; font-size:clamp(18px,2.2vw,22px); color:var(--brand)}
+    /* ROW harga + badge DP (baru) */
+    .price-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:4px 0 0}
     .grid{display:grid; gap:20px; grid-template-columns: 1fr 1fr; margin-top:22px}
     @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
     .card{background:var(--card); border:1px solid #ffffff10; border-radius:18px; padding:18px; box-shadow: 0 8px 30px #0006}
@@ -236,8 +238,16 @@
         </div>
         <h1>Kaos Anniversary GANESIPALA (Glow in the Dark)</h1>
         <p class="lead"><strong>Tanggal Acara 25 - 26 Oktober 2025</strong>.</p>
-        <p class="price">Harga: Rp135.000</p>
-        <div class="row">
+
+        <!-- Harga + badge DP berdampingan -->
+        <div class="price-row" aria-label="harga dan ketentuan DP">
+          <p class="price">Harga: Rp135.000</p>
+          <span class="badge" title="Ketentuan DP 50%">
+            ⚠ Wajib DP 50% saat pemesanan
+          </span>
+        </div>
+
+        <div class="row" style="margin-top:8px">
           <button class="btn" id="btnScroll">Pesan Sekarang</button>
           <button class="btn" style="background:#0b1220;color:#e2e8f0;border:1px solid #ffffff1a" id="btnGallery">Lihat Galeri Produk</button>
         </div>
@@ -255,7 +265,7 @@
           <div class="row">
             <div>
               <label for="nama">Nama Lengkap</label>
-              <input id="nama" name="nama" required placeholder="Contoh: Rizal Firmansyah" />
+              <input id="nama" name="nama" required placeholder="Contoh: kredo" />
             </div>
             <div>
               <label for="wa">No. WhatsApp</label>
@@ -287,6 +297,15 @@
             </div>
           </div>
 
+          <!-- Checkbox persetujuan DP 50% -->
+          <label style="display:flex;align-items:flex-start;gap:10px;margin-top:12px">
+            <input id="dpAgree" type="checkbox" required
+                   style="width:18px;height:18px;margin-top:2px;border-radius:4px;accent-color:#7CFF00" />
+            <span class="hint" style="color:#e5e7eb">
+              Saya memahami bahwa pesanan <strong>wajib DP 50%</strong> saat konfirmasi via WhatsApp.
+            </span>
+          </label>
+
           <div class="row" style="margin-top:16px">
             <button class="btn" id="submitBtn" type="submit">Pre-Order Sekarang</button>
           </div>
@@ -302,6 +321,7 @@
           <li>Desain: Glow in the Dark (huruf hijau menyala saat gelap/kena cahaya)</li>
           <li>Edisi Anniversary GANESIPALA XII</li>
           <li>Ukuran: S – XXXL</li>
+          <li><strong>Ketentuan:</strong> Pemesanan <strong>wajib DP 50%</strong>.</li>
         </ul>
 
         <h2>Beli kaos dapat apa aja?</h2>
@@ -314,7 +334,6 @@
           <li>Stiker</li>
         </ul>
 
-        <!-- ===== Foto Bonus: 2×2 grid ===== -->
         <div class="bonus-grid" aria-label="Bonus merchandise">
           <figure class="bonus-card">
             <img src="assets/bonus-lanyard.jpg" alt="Lanyard Anniversary GANESIPALA" loading="lazy" />
@@ -351,7 +370,6 @@
       </aside>
     </div>
 
-    <!-- ===== Galeri Produk + tombol Size Chart ===== -->
     <section class="card reveal" id="gallerySection" style="margin-top:18px">
       <div class="section-head">
         <h2>Galeri Produk</h2>
@@ -392,7 +410,6 @@
     </section>
   </div>
 
-  <!-- ===== Size Chart (Modal) ===== -->
   <dialog id="sizeModal" aria-labelledby="sizeTitle">
     <div class="modal-header">
       <strong id="sizeTitle">Size Chart (Dewasa)</strong>
@@ -466,7 +483,6 @@
     </div>
   </dialog>
 
-  <!-- ===== Gallery Lightbox ===== -->
   <dialog id="galleryModal" aria-labelledby="galleryCap">
     <button class="close-btn" id="gClose" aria-label="Tutup">✕</button>
     <button class="nav-btn" id="gPrev" aria-label="Sebelumnya">‹</button>
@@ -582,7 +598,6 @@
     }
 
     function renderUkuranFields(n){
-      // simpan pilihan lama
       const prev = Array.from(ukuranGroup.querySelectorAll('select')).map(s=>s.value);
       ukuranGroup.innerHTML = '';
       for(let i=0;i<n;i++){
@@ -591,7 +606,6 @@
       }
     }
 
-    // batasi jumlah (min 1, max 20)
     function clampJumlah(v){
       let n = parseInt(v,10);
       if(isNaN(n) || n < 1) n = 1;
@@ -599,29 +613,20 @@
       return n;
     }
 
-    // NEW: izinkan input kosong saat mengetik, tapi paksa valid saat blur/submit
     let lastValidJumlah = clampJumlah(jumlahInput.value || '1');
     renderUkuranFields(lastValidJumlah);
 
     jumlahInput.addEventListener('input', ()=>{
       const raw = jumlahInput.value.trim();
-
-      // jika kosong (sedang menghapus/mengetik), jangan paksa jadi 1
-      if (raw === '') {
-        // biarkan tampilan ukuran tetap dengan lastValidJumlah
-        return;
-      }
+      if (raw === '') return;
 
       const parsed = parseInt(raw, 10);
       if (isNaN(parsed)) {
-        // bukan angka -> kembalikan ke last valid
         jumlahInput.value = String(lastValidJumlah);
         return;
       }
 
-      // angka valid: clamp lalu render
       const n = clampJumlah(parsed);
-      // jangan menimpa ketikan user kalau masih sama; kalau di-clamp (misal >20) baru set
       if (String(n) !== raw) jumlahInput.value = String(n);
 
       if (n !== lastValidJumlah) {
@@ -631,7 +636,6 @@
     });
 
     jumlahInput.addEventListener('blur', ()=>{
-      // saat keluar fokus, kosong atau tidak valid -> paksa ke lastValidJumlah minimal 1
       const raw = jumlahInput.value.trim();
       if (raw === '' || isNaN(parseInt(raw,10))) {
         jumlahInput.value = String(lastValidJumlah || 1);
@@ -654,7 +658,6 @@
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
 
-      // pastikan jumlah valid saat submit
       const n = clampJumlah(jumlahInput.value);
       jumlahInput.value = String(n);
       lastValidJumlah = n;
@@ -676,6 +679,12 @@
         alert('Pilih ukuran untuk setiap item sesuai jumlah.'); return;
       }
 
+      const dpAgree = document.getElementById('dpAgree');
+      if (!dpAgree.checked) {
+        alert('Silakan centang persetujuan DP 50% terlebih dahulu.');
+        return;
+      }
+
       submitBtn.disabled = true;
 
       const sizeLines = sizes.map((v,i)=>`  ${i+1}. ${v}`).join('\n');
@@ -688,6 +697,7 @@
         `Jumlah: ${jumlah}\n`+
         `Ukuran (per item):\n${sizeLines}\n`+
         `Catatan: ${data.catatan || '-'}\n`+
+        `Pembayaran: DP 50%.\n`+
         `\nDikirim dari halaman pre-order.`;
 
       const admin = '6285730551876';
@@ -750,7 +760,6 @@
       if(e.key === 'Escape'){ gModal.close(); }
     });
 
-    // Swipe di mobile
     let touchX = null;
     gModal.addEventListener('touchstart', (e)=>{ touchX = e.changedTouches[0].clientX; }, {passive:true});
     gModal.addEventListener('touchend', (e)=>{
