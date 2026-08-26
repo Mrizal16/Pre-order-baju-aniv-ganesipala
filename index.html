@@ -287,7 +287,73 @@
 .social-links a.ig:hover{ color:#e1306c; }
 .social-links a.wa:hover{ color:#25D366; }
 .social-links a.fb:hover{ color:#1877f2; }
+/* =========================
+   INFORMASI ANNIVERSARY
+========================= */
+.event-posters{
+  margin-top:18px;
+  overflow:hidden;
+}
 
+.event-posters .section-head{
+  margin-bottom:18px;
+}
+
+.poster-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:18px;
+}
+
+.poster-card{
+  margin:0;
+  background:#0b1220;
+  border:1px solid #ffffff12;
+  border-radius:18px;
+  overflow:hidden;
+  padding:10px;
+  box-shadow:0 10px 30px #0005;
+  transition:.25s ease;
+}
+
+.poster-card:hover{
+  transform:translateY(-5px);
+  border-color:#7CFF0055;
+  box-shadow:0 16px 35px #0009;
+}
+
+.poster-card img{
+  width:100%;
+  height:100%;
+  max-height:650px;
+  object-fit:contain;
+  display:block;
+  border-radius:12px;
+  cursor:zoom-in;
+}
+
+.poster-card figcaption{
+  text-align:center;
+  padding:12px 6px 4px;
+  font-weight:700;
+  color:#f1f5f9;
+}
+
+.poster-card .hint{
+  display:block;
+  margin-top:4px;
+  font-weight:400;
+}
+
+@media(max-width:700px){
+  .poster-grid{
+    grid-template-columns:1fr;
+  }
+
+  .poster-card img{
+    max-height:none;
+  }
+}
   </style>
 </head>
 <body>
@@ -623,12 +689,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>S</td>   <td>48 cm</td> <td>69 cm</td></tr>
-          <tr><td>M</td>   <td>50 cm</td> <td>71 cm</td></tr>
-          <tr><td>L</td>   <td>52 cm</td> <td>73 cm</td></tr>
-          <tr><td>XL</td>  <td>54 cm</td> <td>75 cm</td></tr>
-          <tr><td>XXL</td> <td>56 cm</td> <td>77 cm</td></tr>
-          <tr><td>XXXL</td><td>58 cm</td> <td>79 cm</td></tr>
+          <tr><td>S</td>   <td>46 cm</td> <td>68 cm</td></tr>
+          <tr><td>M</td>   <td>49 cm</td> <td>70 cm</td></tr>
+          <tr><td>L</td>   <td>52 cm</td> <td>72 cm</td></tr>
+          <tr><td>XL</td>  <td>56 cm</td> <td>74 cm</td></tr>
+          <tr><td>XXL</td> <td>60 cm</td> <td>76 cm</td></tr>
+          <tr><td>XXXL</td><td>64 cm</td> <td>78 cm</td></tr>
         </tbody>
       </table>
 
