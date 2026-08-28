@@ -59,6 +59,23 @@
         grid-template-columns:1fr;
       }
     }
+
+    /* ===== Countdown Pre-Order ===== */
+    .countdown{
+      margin:16px 0 4px; padding:16px; border-radius:16px;
+      background:linear-gradient(135deg,#111827,#0b1220);
+      border:1px solid #7CFF0044;
+      box-shadow:0 10px 30px #0005, inset 0 0 30px #7CFF0008;
+    }
+    .countdown-label{font-size:12px; letter-spacing:1.5px; font-weight:800; color:#a5b4fc; margin-bottom:10px}
+    .countdown-title{font-size:18px; font-weight:800; margin-bottom:12px}
+    .countdown-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:420px}
+    .count-box{background:#07100b; border:1px solid #7CFF0038; border-radius:12px; padding:10px 6px; text-align:center}
+    .count-num{display:block; font-size:clamp(24px,4vw,34px); line-height:1; font-weight:900; color:var(--brand); font-variant-numeric:tabular-nums}
+    .count-unit{display:block; margin-top:6px; font-size:10px; letter-spacing:.8px; color:#cbd5e1; font-weight:700}
+    .count-expired{color:#fbbf24; font-weight:800}
+    @media(max-width:520px){.countdown-grid{max-width:none}.count-box{padding:10px 4px}.count-unit{font-size:9px}}
+
     .price{font-weight:800; font-size:clamp(18px,2.2vw,22px); color:var(--brand)}
     .price-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:4px 0 0}
     .grid{display:grid; gap:20px; grid-template-columns: 1fr 1fr; margin-top:22px}
@@ -378,6 +395,20 @@
         </div>
         <h1>Kaos Anniversary GANESIPALA</h1>
         <p class="lead"><strong>Tanggal Acara 24 - 25 Oktober 2026</strong>.</p>
+
+
+        <!-- Countdown Pre-Order -->
+        <div class="countdown" id="countdown" aria-live="polite">
+          <div class="countdown-label">🔥 PRE-ORDER TERBATAS</div>
+          <div class="countdown-title">PO ditutup dalam</div>
+          <div class="countdown-grid">
+            <div class="count-box"><span class="count-num" id="cdDays">00</span><span class="count-unit">HARI</span></div>
+            <div class="count-box"><span class="count-num" id="cdHours">00</span><span class="count-unit">JAM</span></div>
+            <div class="count-box"><span class="count-num" id="cdMinutes">00</span><span class="count-unit">MENIT</span></div>
+            <div class="count-box"><span class="count-num" id="cdSeconds">00</span><span class="count-unit">DETIK</span></div>
+          </div>
+          <p class="hint" id="countdownInfo" style="margin:10px 0 0">Segera lakukan pemesanan sebelum periode pre-order berakhir.</p>
+        </div>
 
         <div class="price-row" aria-label="harga dan ketentuan DP">
           <p class="price">Harga: Rp100.000</p>
@@ -810,6 +841,44 @@
 
   <script>
     const $ = (s, r=document) => r.querySelector(s);
+
+
+    /* ====== COUNTDOWN PRE-ORDER ====== */
+    // Ganti tanggal ini sesuai deadline PO. Format: Tahun-Bulan-Tanggal Jam:Menit:Detik
+    const PO_DEADLINE = new Date('2026-10-06T00:00:00+07:00').getTime();
+
+    const pad = n => String(n).padStart(2, '0');
+    function updateCountdown(){
+      const now = Date.now();
+      let distance = PO_DEADLINE - now;
+      const info = document.getElementById('countdownInfo');
+
+      if(distance <= 0){
+        document.getElementById('cdDays').textContent = '00';
+        document.getElementById('cdHours').textContent = '00';
+        document.getElementById('cdMinutes').textContent = '00';
+        document.getElementById('cdSeconds').textContent = '00';
+        info.textContent = '⚠️ Periode pre-order telah ditutup.';
+        info.classList.add('count-expired');
+        clearInterval(countdownTimer);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      distance %= (1000 * 60 * 60 * 24);
+      const hours = Math.floor(distance / (1000 * 60 * 60));
+      distance %= (1000 * 60 * 60);
+      const minutes = Math.floor(distance / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('cdDays').textContent = pad(days);
+      document.getElementById('cdHours').textContent = pad(hours);
+      document.getElementById('cdMinutes').textContent = pad(minutes);
+      document.getElementById('cdSeconds').textContent = pad(seconds);
+    }
+
+    updateCountdown();
+    const countdownTimer = setInterval(updateCountdown, 1000);
 
     /* ====== AUTOPLAY “MAKSIMAL” ====== */
     const bgm = document.getElementById('bgm');
