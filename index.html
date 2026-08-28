@@ -61,6 +61,13 @@
     }
 
     /* ===== Countdown Pre-Order ===== */
+
+    .po-status{display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.7px;margin:12px 0;background:#ffffff0d;border:1px solid #ffffff18}
+    .po-status.open{color:var(--brand);border-color:#7cff0055;box-shadow:0 0 18px #7cff0015}
+    .po-status.closed{color:#ff6b6b;border-color:#ff6b6b55;background:#ff6b6b12}
+    .status-dot{width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+    .po-closed-note{color:#ff8a8a;font-weight:700}
+
     .countdown{
       margin:16px 0 4px; padding:16px; border-radius:16px;
       background:linear-gradient(135deg,#111827,#0b1220);
@@ -373,6 +380,20 @@
     max-height:none;
   }
 }
+  
+
+    /* ===== FAQ ===== */
+    .faq-section{margin-top:18px}
+    .faq-list{display:grid; gap:10px; margin-top:16px}
+    .faq-item{background:#0b1020; border:1px solid #ffffff12; border-radius:14px; overflow:hidden; transition:.25s ease}
+    .faq-item:hover{border-color:#7CFF0044}
+    .faq-question{width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; padding:17px 18px; background:transparent; color:var(--text); border:0; cursor:pointer; text-align:left; font:inherit; font-weight:800}
+    .faq-icon{width:28px; height:28px; flex:0 0 28px; display:grid; place-items:center; border-radius:50%; background:#7CFF0018; color:var(--brand); font-size:20px; transition:transform .25s ease, background .25s ease}
+    .faq-answer{max-height:0; overflow:hidden; transition:max-height .3s ease}
+    .faq-answer-inner{padding:0 18px 18px; color:var(--muted); line-height:1.65}
+    .faq-item.active{border-color:#7CFF0066; box-shadow:0 10px 25px #0003}
+    .faq-item.active .faq-icon{transform:rotate(45deg); background:#7CFF0028}
+
   </style>
 </head>
 <body>
@@ -398,6 +419,11 @@
 
 
         <!-- Countdown Pre-Order -->
+        <div class="po-status open" id="poStatus" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="poStatusText">PRE-ORDER DIBUKA</span>
+        </div>
+
         <div class="countdown" id="countdown" aria-live="polite">
           <div class="countdown-label">🔥 PRE-ORDER TERBATAS</div>
           <div class="countdown-title">PO ditutup dalam</div>
@@ -637,6 +663,51 @@
       </div>
     </section>
 
+    
+
+    <!-- FAQ -->
+    <!-- <section class="card reveal faq-section" id="faqSection">
+      <div class="section-head">
+        <div>
+          <h2>Pertanyaan yang Sering Ditanyakan</h2>
+          <p class="hint">Beberapa hal penting sebelum melakukan pre-order.</p>
+        </div>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Apakah wajib membayar DP?</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">Ya. Pembayaran dilakukan dengan sistem DP minimal 50% sesuai ketentuan pemesanan.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Kapan pre-order ditutup?</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">Pre-order ditutup pada pergantian tanggal 5 ke 6 Oktober 2026, tepat pukul 00.00 WIB.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Apakah bisa memesan lebih dari satu kaos?</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">Bisa. Pilih jumlah pesanan pada form, lalu tentukan ukuran untuk setiap kaos yang dipesan.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Bagaimana cara mengambil pesanan?</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">Pesanan dapat dikirim ke alamat pembeli atau diambil sesuai metode pengambilan yang tersedia pada form pemesanan.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Bagaimana jika salah memilih ukuran?</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">Pastikan ukuran sudah sesuai sebelum melakukan konfirmasi pesanan. Jika ingin mengubah pesanan, segera hubungi admin sebelum pesanan masuk tahap produksi.</div></div>
+        </div>
+      </div>
+    </section> -->
+
     <!-- INFORMASI ANNIVERSARY -->
     <section class="card reveal event-posters" id="eventSection">
 
@@ -860,6 +931,7 @@
         document.getElementById('cdSeconds').textContent = '00';
         info.textContent = '⚠️ Periode pre-order telah ditutup.';
         info.classList.add('count-expired');
+        setPOClosed();
         clearInterval(countdownTimer);
         return;
       }
@@ -879,6 +951,19 @@
 
     updateCountdown();
     const countdownTimer = setInterval(updateCountdown, 1000);
+
+    function setPOClosed(){
+      const status = document.getElementById('poStatus');
+      const statusText = document.getElementById('poStatusText');
+      const form = document.getElementById('poForm');
+      const submitBtn = document.getElementById('submitBtn');
+      if(status){ status.classList.remove('open'); status.classList.add('closed'); }
+      if(statusText) statusText.textContent = 'PRE-ORDER DITUTUP';
+      if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'PRE-ORDER TELAH DITUTUP'; submitBtn.style.opacity = '.55'; submitBtn.style.cursor = 'not-allowed'; }
+      if(form){ form.querySelectorAll('input, select, textarea').forEach(el=>el.disabled=true); }
+    }
+
+    function isPOOpen(){ return Date.now() < PO_DEADLINE; }
 
     /* ====== AUTOPLAY “MAKSIMAL” ====== */
     const bgm = document.getElementById('bgm');
@@ -1057,6 +1142,12 @@
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
 
+      if(!isPOOpen()){
+        setPOClosed();
+        alert('Maaf, periode Pre-Order telah ditutup.');
+        return;
+      }
+
       const n = clampJumlah(jumlahInput.value);
       jumlahInput.value = String(n);
       lastValidJumlah = n;
@@ -1196,6 +1287,29 @@
     }, {passive:true});
 
     window.addEventListener('load', wireClicks);
+  
+
+    /* ===== FAQ ACCORDION ===== */
+    document.querySelectorAll('.faq-question').forEach((button)=>{
+      button.addEventListener('click', ()=>{
+        const item = button.closest('.faq-item');
+        const answer = item.querySelector('.faq-answer');
+        const isOpen = item.classList.contains('active');
+
+        document.querySelectorAll('.faq-item.active').forEach((openItem)=>{
+          openItem.classList.remove('active');
+          openItem.querySelector('.faq-question').setAttribute('aria-expanded','false');
+          openItem.querySelector('.faq-answer').style.maxHeight = null;
+        });
+
+        if(!isOpen){
+          item.classList.add('active');
+          button.setAttribute('aria-expanded','true');
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+      });
+    });
+
   </script>
 </body>
 </html>
