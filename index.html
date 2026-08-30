@@ -557,30 +557,22 @@
             </span>
           </label>
 
-          <!-- Preview harga otomatis -->
+          <!-- Ringkasan pesanan otomatis -->
           <div class="order-summary" id="orderSummary" aria-live="polite">
-            <div class="order-summary-title">RINGKASAN PEMBAYARAN</div>
+            <div class="order-summary-title">RINGKASAN PESANAN</div>
             <div class="order-summary-row">
-              <span>Harga dasar × <span id="previewJumlah">1</span> kaos</span>
-              <strong id="previewHargaDasar">Rp100.000</strong>
-            </div>
-            <div class="order-summary-row" id="sizeSurchargeRow" style="display:none">
-              <span>Tambahan ukuran XXL/XXXL</span>
-              <strong id="previewSurcharge">+Rp0</strong>
+              <span>Total kaos</span>
+              <strong><span id="previewJumlah">1</span> pcs</strong>
             </div>
             <div class="order-summary-row total">
               <span>Total harga</span>
               <strong id="previewTotal">Rp100.000</strong>
             </div>
             <div class="order-summary-row">
-              <span>DP 50% saat pemesanan</span>
-              <strong id="previewDP">Rp50.000</strong>
+              <span>DP</span>
+              <strong>50%</strong>
             </div>
-            <div class="order-summary-row total">
-              <span>Sisa pembayaran</span>
-              <strong id="previewSisa">Rp50.000</strong>
-            </div>
-            <div class="order-summary-note">Ukuran XXL dan XXXL dikenakan tambahan Rp5.000 per item. Belum termasuk ongkir apabila memilih metode pengiriman.</div>
+            <div class="order-summary-note">Harga XXL dan XXXL +Rp5.000 per item. Belum termasuk ongkir apabila memilih metode pengiriman.</div>
           </div>
 
           <div class="row" style="margin-top:16px">
@@ -1087,14 +1079,8 @@
     const HARGA_SATUAN = 100000;
     const TAMBAHAN_UKURAN_BESAR = 5000;
     const UKURAN_PLUS = ['XXL','XXXL'];
-    const DP_PERSEN = 0.5;
     const previewJumlah      = document.getElementById('previewJumlah');
-    const previewHargaDasar  = document.getElementById('previewHargaDasar');
-    const previewSurcharge   = document.getElementById('previewSurcharge');
-    const sizeSurchargeRow   = document.getElementById('sizeSurchargeRow');
     const previewTotal       = document.getElementById('previewTotal');
-    const previewDP          = document.getElementById('previewDP');
-    const previewSisa        = document.getElementById('previewSisa');
 
     function formatRupiah(angka){
       return 'Rp' + Number(angka).toLocaleString('id-ID');
@@ -1107,22 +1093,15 @@
       const hargaDasar = HARGA_SATUAN * n;
       const tambahanUkuran = jumlahUkuranPlus * TAMBAHAN_UKURAN_BESAR;
       const total = hargaDasar + tambahanUkuran;
-      const dp = Math.round(total * DP_PERSEN);
-      const sisa = total - dp;
 
-      return { n, jumlahUkuranPlus, hargaDasar, tambahanUkuran, total, dp, sisa };
+      return { n, jumlahUkuranPlus, hargaDasar, tambahanUkuran, total };
     }
 
     function updatePricePreview(jumlah){
       const harga = hitungHargaPesanan(jumlah);
 
       previewJumlah.textContent = harga.n;
-      previewHargaDasar.textContent = formatRupiah(harga.hargaDasar);
-      previewSurcharge.textContent = '+' + formatRupiah(harga.tambahanUkuran);
-      sizeSurchargeRow.style.display = harga.tambahanUkuran > 0 ? 'flex' : 'none';
       previewTotal.textContent = formatRupiah(harga.total);
-      previewDP.textContent = formatRupiah(harga.dp);
-      previewSisa.textContent = formatRupiah(harga.sisa);
     }
 
     function makeUkuranRow(index, value=''){
@@ -1320,8 +1299,7 @@
         `Jumlah: ${jumlah}\n`+
         `Ukuran (per item):\n${sizeLines}\n`+
         `Total Harga: ${formatRupiah(hargaPesanan.total)}\n`+
-        `DP 50%: ${formatRupiah(hargaPesanan.dp)}\n`+
-        `Sisa Pembayaran: ${formatRupiah(hargaPesanan.sisa)}\n`+
+        `DP: 50%\n`+
         `Catatan: ${data.catatan || '-'}\n`+
         ongkirLine +
         `\nDikirim dari halaman pre-order.`;
