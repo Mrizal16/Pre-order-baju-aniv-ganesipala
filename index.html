@@ -461,7 +461,7 @@
         </div>
 
         <div class="price-row" aria-label="harga dan ketentuan DP">
-          <p class="price">Harga: Rp100.000 <span style="font-size:13px;color:#cbd5e1;font-weight:600">(XXL–XXXL +Rp5.000)</span></p>
+          <p class="price">Harga: Rp100.000 <span style="font-size:13px;color:#cbd5e1;font-weight:600">(XXL +Rp5.000 • XXXL +Rp10.000 • Lengan panjang +Rp10.000)</span></p>
           <span class="badge" title="Ketentuan DP 50%">
             ⚠ Wajib DP 50% saat pemesanan
           </span>
@@ -572,7 +572,7 @@
               <span>DP</span>
               <strong>50%</strong>
             </div>
-            <div class="order-summary-note">Harga XXL dan XXXL +Rp5.000 per item. Belum termasuk ongkir apabila memilih metode pengiriman.</div>
+            <div class="order-summary-note">Tambahan ukuran: XXL +Rp5.000, XXXL +Rp10.000 per item. Lengan panjang +Rp10.000 per item. Belum termasuk ongkir apabila memilih metode pengiriman.</div>
           </div>
 
           <div class="row" style="margin-top:16px">
@@ -592,7 +592,8 @@
           <li>Desain: <strong>Color Changing</strong> (desain berubah warna saat terkena sinar matahari)</li>
           <li>Mode: Shadow Mode & Sun Mode</li>
           <li>Edisi Terbatas Anniversary GANESPALA Ke-13</li>
-          <li>Ukuran: S – XXXL <strong>(XXL & XXXL +Rp5.000)</strong></li>
+          <li>Ukuran: S – XXXL <strong>(XXL +Rp5.000, XXXL +Rp10.000)</strong></li>
+          <li>Pilihan lengan: <strong>Pendek / Panjang (+Rp10.000)</strong></li>
           <li><strong>Ketentuan:</strong> Pemesanan <strong>wajib DP 50%</strong>.</li>
         </ul>
 
@@ -1077,8 +1078,12 @@
 
     /* ====== Preview Harga ====== */
     const HARGA_SATUAN = 100000;
-    const TAMBAHAN_UKURAN_BESAR = 5000;
-    const UKURAN_PLUS = ['XXL','XXXL'];
+    const TAMBAHAN_UKURAN = { XXL: 5000, XXXL: 10000 };
+    const TAMBAHAN_LENGAN_PANJANG = 10000;
+    const LENGAN_OPTIONS = [
+      { value: 'pendek', label: 'Lengan Pendek' },
+      { value: 'panjang', label: 'Lengan Panjang (+Rp10.000)' }
+    ];
     const previewJumlah      = document.getElementById('previewJumlah');
     const previewTotal       = document.getElementById('previewTotal');
 
@@ -1086,15 +1091,26 @@
       return 'Rp' + Number(angka).toLocaleString('id-ID');
     }
 
+    function hargaItem(size, lengan){
+      const tambahanUkuran = TAMBAHAN_UKURAN[size] || 0;
+      const tambahanLengan = lengan === 'panjang' ? TAMBAHAN_LENGAN_PANJANG : 0;
+      return HARGA_SATUAN + tambahanUkuran + tambahanLengan;
+    }
+
     function hitungHargaPesanan(jumlah){
       const n = clampJumlah(jumlah);
-      const sizes = Array.from(ukuranGroup.querySelectorAll('.ukuran-select')).map(s => s.value);
-      const jumlahUkuranPlus = sizes.filter(size => UKURAN_PLUS.includes(size)).length;
-      const hargaDasar = HARGA_SATUAN * n;
-      const tambahanUkuran = jumlahUkuranPlus * TAMBAHAN_UKURAN_BESAR;
-      const total = hargaDasar + tambahanUkuran;
+      const rows = Array.from(ukuranGroup.querySelectorAll('.ukuran-item'));
+      const items = rows.map(row => ({
+        size: row.querySelector('.ukuran-select')?.value || '',
+        lengan: row.querySelector('.lengan-select')?.value || 'pendek'
+      }));
 
-      return { n, jumlahUkuranPlus, hargaDasar, tambahanUkuran, total };
+      const hargaDasar = HARGA_SATUAN * n;
+      const tambahanUkuran = items.reduce((sum, item) => sum + (TAMBAHAN_UKURAN[item.size] || 0), 0);
+      const tambahanLengan = items.reduce((sum, item) => sum + (item.lengan === 'panjang' ? TAMBAHAN_LENGAN_PANJANG : 0), 0);
+      const total = hargaDasar + tambahanUkuran + tambahanLengan;
+
+      return { n, items, hargaDasar, tambahanUkuran, tambahanLengan, total };
     }
 
     function updatePricePreview(jumlah){
@@ -1104,45 +1120,76 @@
       previewTotal.textContent = formatRupiah(harga.total);
     }
 
-    function makeUkuranRow(index, value=''){
-      const row   = document.createElement('div');
+    function makeUkuranRow(index, sizeValue='', lenganValue='pendek'){
+      const row = document.createElement('div');
       row.className = 'ukuran-item';
 
-      const lab   = document.createElement('label');
-      const id    = `ukuran_${index+1}`;
-      lab.setAttribute('for', id);
-      lab.textContent = `Ukuran ${index+1}`;
+      const title = document.createElement('div');
+      title.style.fontWeight = '800';
+      title.style.marginBottom = '8px';
+      title.textContent = `Kaos ${index+1}`;
 
-      const sel   = document.createElement('select');
-      sel.id = id;
-      sel.name = id;
-      sel.required = true;
-      sel.className = 'ukuran-select';
+      const sizeLab = document.createElement('label');
+      const sizeId = `ukuran_${index+1}`;
+      sizeLab.setAttribute('for', sizeId);
+      sizeLab.textContent = 'Ukuran';
+
+      const sizeSel = document.createElement('select');
+      sizeSel.id = sizeId;
+      sizeSel.name = sizeId;
+      sizeSel.required = true;
+      sizeSel.className = 'ukuran-select';
 
       const opt0 = document.createElement('option');
       opt0.value = '';
       opt0.textContent = 'Pilih ukuran';
-      sel.appendChild(opt0);
+      sizeSel.appendChild(opt0);
 
       SIZE_OPTIONS.forEach(v=>{
         const o = document.createElement('option');
-        o.value = v; o.textContent = v;
-        sel.appendChild(o);
+        o.value = v;
+        const extra = TAMBAHAN_UKURAN[v] || 0;
+        o.textContent = extra ? `${v} (+${formatRupiah(extra)})` : v;
+        sizeSel.appendChild(o);
       });
+      if (sizeValue) sizeSel.value = sizeValue;
 
-      if (value) sel.value = value;
+      const sleeveLab = document.createElement('label');
+      const sleeveId = `lengan_${index+1}`;
+      sleeveLab.setAttribute('for', sleeveId);
+      sleeveLab.textContent = 'Model Lengan';
 
-      row.appendChild(lab);
-      row.appendChild(sel);
+      const sleeveSel = document.createElement('select');
+      sleeveSel.id = sleeveId;
+      sleeveSel.name = sleeveId;
+      sleeveSel.required = true;
+      sleeveSel.className = 'lengan-select';
+
+      LENGAN_OPTIONS.forEach(item=>{
+        const o = document.createElement('option');
+        o.value = item.value;
+        o.textContent = item.label;
+        sleeveSel.appendChild(o);
+      });
+      sleeveSel.value = lenganValue || 'pendek';
+
+      row.appendChild(title);
+      row.appendChild(sizeLab);
+      row.appendChild(sizeSel);
+      row.appendChild(sleeveLab);
+      row.appendChild(sleeveSel);
       return row;
     }
 
     function renderUkuranFields(n){
-      const prev = Array.from(ukuranGroup.querySelectorAll('select')).map(s=>s.value);
+      const prev = Array.from(ukuranGroup.querySelectorAll('.ukuran-item')).map(row => ({
+        size: row.querySelector('.ukuran-select')?.value || '',
+        lengan: row.querySelector('.lengan-select')?.value || 'pendek'
+      }));
       ukuranGroup.innerHTML = '';
       for(let i=0;i<n;i++){
-        const val = prev[i] || '';
-        ukuranGroup.appendChild(makeUkuranRow(i, val));
+        const item = prev[i] || { size:'', lengan:'pendek' };
+        ukuranGroup.appendChild(makeUkuranRow(i, item.size, item.lengan));
       }
     }
 
@@ -1194,9 +1241,9 @@
       updatePricePreview(n);
     });
 
-    // Perbarui harga ketika ukuran berubah (XXL/XXXL +Rp5.000 per item)
+    // Perbarui harga ketika ukuran atau model lengan berubah
     ukuranGroup.addEventListener('change', (e)=>{
-      if (e.target.classList.contains('ukuran-select')) {
+      if (e.target.classList.contains('ukuran-select') || e.target.classList.contains('lengan-select')) {
         updatePricePreview(jumlahInput.value || lastValidJumlah || 1);
       }
     });
@@ -1239,8 +1286,9 @@
       const jumlah = n;
       const metode = data.metode || 'kirim';
 
-      const sizeSelects = Array.from(ukuranGroup.querySelectorAll('select'));
-      const sizes = sizeSelects.map(s => s.value);
+      const itemRows = Array.from(ukuranGroup.querySelectorAll('.ukuran-item'));
+      const sizes = itemRows.map(row => row.querySelector('.ukuran-select')?.value || '');
+      const sleeves = itemRows.map(row => row.querySelector('.lengan-select')?.value || '');
 
       // validasi dasar
       if(!data.nama || !data.wa || !jumlah){
@@ -1256,6 +1304,9 @@
       if(sizes.length !== jumlah || sizes.some(v => !v)){
         alert('Pilih ukuran untuk setiap item sesuai jumlah.'); return;
       }
+      if(sleeves.length !== jumlah || sleeves.some(v => !v)){
+        alert('Pilih model lengan untuk setiap item.'); return;
+      }
 
       const dpAgree = document.getElementById('dpAgree');
       if (!dpAgree.checked) {
@@ -1266,8 +1317,10 @@
       submitBtn.disabled = true;
 
       const sizeLines = sizes.map((v,i)=>{
-        const hargaItem = HARGA_SATUAN + (UKURAN_PLUS.includes(v) ? TAMBAHAN_UKURAN_BESAR : 0);
-        return `  ${i+1}. ${v} — ${formatRupiah(hargaItem)}`;
+        const lengan = sleeves[i];
+        const modelLengan = lengan === 'panjang' ? 'Lengan Panjang' : 'Lengan Pendek';
+        const itemPrice = hargaItem(v, lengan);
+        return `  ${i+1}. ${v} • ${modelLengan} — ${formatRupiah(itemPrice)}`;
       }).join('\n');
       const hargaPesanan = hitungHargaPesanan(jumlah);
 
@@ -1297,7 +1350,7 @@
         extraPickupLine +
         `Warna: Putih\n`+
         `Jumlah: ${jumlah}\n`+
-        `Ukuran (per item):\n${sizeLines}\n`+
+        `Detail Kaos (per item):\n${sizeLines}\n`+
         `Total Harga: ${formatRupiah(hargaPesanan.total)}\n`+
         `DP: 50%\n`+
         `Catatan: ${data.catatan || '-'}\n`+
